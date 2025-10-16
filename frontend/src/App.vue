@@ -1,14 +1,15 @@
 <script setup>
 // 引入布局组件
 import TheHeader from './components/TheHeader.vue';
-import PostList from './components/PostList.vue';
 import TheFooter from './components/TheFooter.vue';
 </script>
 
 <template>
-  <div id="blog-app">
+  <div id="app">
     <TheHeader />
-    <PostList />
+    <main>
+      <router-view />
+    </main>
     <TheFooter />
   </div>
 </template>

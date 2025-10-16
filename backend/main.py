@@ -13,18 +13,22 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 # --- CORS 中间件 ---
+# 开发环境:允许所有来源
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:5174",
     "http://127.0.0.1:5174",
+    "http://localhost:8000",
 ]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # --- 依赖项 ---
@@ -45,7 +49,22 @@ def get_current_user(token: str = Depends(security.oauth2_scheme), db: Session =
             detail="User not found",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    # 检查账号是否被禁用
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account has been disabled",
+        )
     return user
+
+def get_current_admin(current_user: models.User = Depends(get_current_user)):
+    """验证当前用户是否为管理员"""
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required",
+        )
+    return current_user
 
 # --- API 路由 ---
 
@@ -78,6 +97,79 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 def read_current_user(current_user: models.User = Depends(get_current_user)):
     """获取当前登录用户的信息"""
     return current_user
+
+@app.put("/api/users/me/password")
+def update_my_password(
+    password_update: schemas.UserPasswordUpdate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """修改当前用户密码"""
+    result = crud.update_user_password(
+        db, current_user.id, password_update.old_password, password_update.new_password
+    )
+    if result is False:
+        raise HTTPException(status_code=400, detail="Incorrect old password")
+    if result is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": "Password updated successfully"}
+
+# --- 管理员 API ---
+
+@app.get("/api/admin/users", response_model=list[schemas.UserSimple])
+def get_all_users(
+    skip: int = 0,
+    limit: int = 100,
+    current_admin: models.User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    """获取所有用户列表(仅管理员)"""
+    return crud.get_all_users(db, skip=skip, limit=limit)
+
+@app.get("/api/admin/users/{user_id}", response_model=schemas.User)
+def get_user_detail(
+    user_id: int,
+    current_admin: models.User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    """获取用户详细信息(仅管理员)"""
+    user = crud.get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+@app.put("/api/admin/users/{user_id}", response_model=schemas.User)
+def update_user(
+    user_id: int,
+    user_update: schemas.UserUpdate,
+    current_admin: models.User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    """更新用户信息(仅管理员)"""
+    # 防止管理员修改自己的角色
+    if user_id == current_admin.id and user_update.role:
+        raise HTTPException(status_code=400, detail="Cannot modify your own role")
+    
+    user = crud.update_user(db, user_id, user_update)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+@app.delete("/api/admin/users/{user_id}")
+def delete_user(
+    user_id: int,
+    current_admin: models.User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    """删除用户(仅管理员)"""
+    # 防止管理员删除自己
+    if user_id == current_admin.id:
+        raise HTTPException(status_code=400, detail="Cannot delete yourself")
+    
+    success = crud.delete_user(db, user_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": "User deleted successfully"}
 
 @app.get("/api/posts", response_model=list[schemas.Post])
 def read_posts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):

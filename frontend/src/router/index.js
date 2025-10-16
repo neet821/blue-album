@@ -18,6 +18,32 @@ const routes = [
     path: '/register',
     name: 'Register',
     component: RegisterPage
+  },
+  {
+    path: '/archive',
+    name: 'Archive',
+    component: () => import('../views/ArchivePage.vue')
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: () => import('../views/AboutPage.vue')
+  },
+  {
+    path: '/tools',
+    name: 'Tools',
+    component: () => import('../views/ToolsPage.vue')
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: () => import('../views/ProfilePage.vue')
+  },
+  {
+    path: '/admin/users',
+    name: 'AdminUsers',
+    component: () => import('../views/AdminUsersPage.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
   }
 ];
 

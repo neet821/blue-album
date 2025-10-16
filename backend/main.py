@@ -171,17 +171,186 @@ def delete_user(
         raise HTTPException(status_code=404, detail="User not found")
     return {"message": "User deleted successfully"}
 
-@app.get("/api/posts", response_model=list[schemas.Post])
-def read_posts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    posts = crud.get_posts(db, skip=skip, limit=limit)
-    # 如果没有文章，可以返回一些临时数据用于前端展示
-    if not posts:
-        return [
-            {"id": 1, "title": "欢迎来到我的博客", "content": "这是第一篇示例文章。", "author_id": 1, "created_at": "2025-10-11T12:00:00"},
-            {"id": 2, "title": "关于 FastAPI 和 Vue", "content": "这是一个强大的组合。", "author_id": 1, "created_at": "2025-10-10T15:30:00"},
-        ]
+# --- 文章 API ---
+
+@app.get("/api/posts", response_model=list[schemas.PostWithAuthor])
+def read_posts(
+    skip: int = 0, 
+    limit: int = 100, 
+    author_id: int = None,
+    search: str = None,
+    category: str = None,
+    db: Session = Depends(get_db)
+):
+    """获取文章列表，支持分页、按作者筛选、搜索和分类过滤"""
+    posts = crud.get_posts(db, skip=skip, limit=limit, author_id=author_id, 
+                          search=search, category=category)
     return posts
+
+@app.get("/api/posts/{post_id}", response_model=schemas.PostWithAuthor)
+def read_post(post_id: int, db: Session = Depends(get_db)):
+    """获取单篇文章详情并增加浏览次数"""
+    post = crud.get_post_by_id(db, post_id)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    # 增加浏览次数
+    crud.increment_post_views(db, post_id)
+    
+    # 重新获取更新后的文章（包含新的浏览次数）
+    post = crud.get_post_by_id(db, post_id)
+    return post
+
+@app.post("/api/posts", response_model=schemas.Post, status_code=status.HTTP_201_CREATED)
+def create_post(
+    post: schemas.PostCreate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """创建文章（仅管理员）"""
+    # 权限检查：仅管理员可以创建文章
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Only administrators can create posts")
+    
+    return crud.create_post(db, post, author_id=current_user.id)
+
+@app.put("/api/posts/{post_id}", response_model=schemas.Post)
+def update_post(
+    post_id: int,
+    post_update: schemas.PostUpdate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """更新文章（仅作者或管理员）"""
+    db_post = crud.get_post_by_id(db, post_id)
+    if not db_post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    # 权限检查：仅作者或管理员可以编辑
+    if db_post.author_id != current_user.id and current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized to edit this post")
+    
+    updated_post = crud.update_post(db, post_id, post_update)
+    return updated_post
+
+@app.delete("/api/posts/{post_id}")
+def delete_post(
+    post_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """删除文章（仅作者或管理员）"""
+    db_post = crud.get_post_by_id(db, post_id)
+    if not db_post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    # 权限检查：仅作者或管理员可以删除
+    if db_post.author_id != current_user.id and current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized to delete this post")
+    
+    crud.delete_post(db, post_id)
+    return {"message": "Post deleted successfully"}
 
 @app.get("/")
 def read_root():
     return {"message": "FastAPI backend is running"}
+
+# --- Link Categories API ---
+
+@app.get("/api/categories")
+def get_categories(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """获取当前用户的所有分类"""
+    return crud.get_categories_by_user(db, user_id=current_user.id)
+
+@app.post("/api/categories", status_code=status.HTTP_201_CREATED)
+def create_category(
+    category: schemas.LinkCategoryCreate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """创建分类"""
+    return crud.create_category(db, category, user_id=current_user.id)
+
+@app.put("/api/categories/{category_id}")
+def update_category(
+    category_id: int,
+    category_update: schemas.LinkCategoryUpdate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """更新分类"""
+    db_category = crud.update_category(db, category_id, category_update, user_id=current_user.id)
+    if not db_category:
+        raise HTTPException(status_code=404, detail="Category not found")
+    return db_category
+
+@app.delete("/api/categories/{category_id}")
+def delete_category(
+    category_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """删除分类"""
+    success = crud.delete_category(db, category_id, user_id=current_user.id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Category not found")
+    return {"message": "Category deleted successfully"}
+
+# --- Website Links API ---
+
+@app.get("/api/links")
+def get_links(
+    category_id: int = None,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """获取当前用户的链接,可选按分类筛选"""
+    return crud.get_links_by_user(db, user_id=current_user.id, category_id=category_id)
+
+@app.post("/api/links", status_code=status.HTTP_201_CREATED)
+def create_link(
+    link: schemas.WebsiteLinkCreate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """创建链接"""
+    # 验证分类是否属于当前用户
+    category = crud.get_category_by_id(db, link.category_id, user_id=current_user.id)
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    return crud.create_link(db, link, user_id=current_user.id)
+
+@app.put("/api/links/{link_id}")
+def update_link(
+    link_id: int,
+    link_update: schemas.WebsiteLinkUpdate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """更新链接"""
+    # 如果要修改分类,验证分类是否属于当前用户
+    if link_update.category_id:
+        category = crud.get_category_by_id(db, link_update.category_id, user_id=current_user.id)
+        if not category:
+            raise HTTPException(status_code=404, detail="Category not found")
+    
+    db_link = crud.update_link(db, link_id, link_update, user_id=current_user.id)
+    if not db_link:
+        raise HTTPException(status_code=404, detail="Link not found")
+    return db_link
+
+@app.delete("/api/links/{link_id}")
+def delete_link(
+    link_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """删除链接"""
+    success = crud.delete_link(db, link_id, user_id=current_user.id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Link not found")
+    return {"message": "Link deleted successfully"}

@@ -176,7 +176,7 @@ function formatDate(dateString) {
 
 h1 {
   margin-bottom: 30px;
-  color: #333;
+  color: var(--primary-text);
 }
 
 .profile-grid {
@@ -187,15 +187,17 @@ h1 {
 }
 
 .card {
-  background: white;
+  background: var(--primary-bg);
   padding: 30px;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px var(--shadow);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
 }
 
 .card h2 {
   margin-bottom: 20px;
-  color: #555;
+  color: var(--secondary-text);
   font-size: 20px;
 }
 
@@ -204,7 +206,7 @@ h1 {
   justify-content: space-between;
   align-items: center;
   padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .info-item:last-child {
@@ -212,12 +214,12 @@ h1 {
 }
 
 .info-item .label {
-  color: #888;
+  color: var(--secondary-text);
   font-weight: 500;
 }
 
 .info-item .value {
-  color: #333;
+  color: var(--primary-text);
 }
 
 .role-badge {
@@ -228,7 +230,7 @@ h1 {
 }
 
 .role-badge.admin {
-  background: #3498db;
+  background: var(--link-color);
   color: white;
 }
 
@@ -244,28 +246,31 @@ h1 {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #555;
+  color: var(--secondary-text);
   font-weight: 500;
 }
 
 .form-group input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   font-size: 14px;
+  background: var(--primary-bg);
+  color: var(--primary-text);
   transition: border-color 0.3s;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #3498db;
+  border-color: var(--link-color);
 }
 
 .error-message {
   padding: 12px;
-  background: #fee;
+  background: rgba(255, 68, 68, 0.1);
   color: #e74c3c;
+  border: 1px solid rgba(255, 68, 68, 0.3);
   border-radius: 4px;
   margin-bottom: 15px;
   font-size: 14px;
@@ -273,8 +278,9 @@ h1 {
 
 .success-message {
   padding: 12px;
-  background: #d4edda;
-  color: #155724;
+  background: rgba(46, 204, 113, 0.1);
+  color: #27ae60;
+  border: 1px solid rgba(46, 204, 113, 0.3);
   border-radius: 4px;
   margin-bottom: 15px;
   font-size: 14px;
@@ -283,7 +289,7 @@ h1 {
 .btn-primary {
   width: 100%;
   padding: 12px;
-  background: #3498db;
+  background: var(--link-color);
   color: white;
   border: none;
   border-radius: 4px;
@@ -294,7 +300,7 @@ h1 {
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #2980b9;
+  background: var(--link-hover);
 }
 
 .btn-primary:disabled {

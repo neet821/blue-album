@@ -35,9 +35,42 @@ const routes = [
     component: () => import('../views/ToolsPage.vue')
   },
   {
+    path: '/tools/links',
+    name: 'LinkDashboard',
+    component: () => import('../views/tools/link-dashboard/LinkDashboard.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/profile',
     name: 'Profile',
     component: () => import('../views/ProfilePage.vue')
+  },
+  {
+    path: '/posts',
+    name: 'Posts',
+    component: () => import('../views/PostsPage.vue')
+  },
+  {
+    path: '/posts/new',
+    name: 'PostNew',
+    component: () => import('../views/PostEditorPage.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/posts/:id',
+    name: 'PostDetail',
+    component: () => import('../views/PostDetailPage.vue')
+  },
+  {
+    path: '/posts/:id/edit',
+    name: 'PostEdit',
+    component: () => import('../views/PostEditorPage.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/author/:id',
+    name: 'Author',
+    component: () => import('../views/AuthorPage.vue')
   },
   {
     path: '/admin/users',

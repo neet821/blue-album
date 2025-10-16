@@ -31,7 +31,8 @@ onMounted(async () => {
       v-for="post in posts"
       :key="post.id"
       :title="post.title"
-      :excerpt="post.content" 
+      :excerpt="post.content"
+      :author="post.author?.username"
       :date="new Date(post.created_at).toLocaleDateString()"
     />
 
@@ -47,7 +48,11 @@ onMounted(async () => {
   padding: 40px 20px;
 }
 .error-message {
-  color: red;
+  color: #e74c3c;
   text-align: center;
+  background: rgba(255, 68, 68, 0.1);
+  border: 1px solid rgba(255, 68, 68, 0.3);
+  padding: 12px;
+  border-radius: 4px;
 }
 </style>

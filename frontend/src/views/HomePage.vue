@@ -32,16 +32,17 @@ onMounted(() => {
 }
 
 .welcome-section {
-  background: white;
+  background: var(--primary-bg);
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 30px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px var(--shadow);
+  border: 1px solid var(--border-color);
 }
 
 .welcome-section h2 {
   margin: 0;
-  color: #333;
+  color: var(--primary-text);
   font-size: 24px;
 }
 </style>

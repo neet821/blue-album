@@ -10,9 +10,10 @@
 .blog-footer {
   text-align: center;
   padding: 30px 0;
-  border-top: 1px solid #eee;
-  color: #666;
+  border-top: 1px solid var(--border-color);
+  color: var(--secondary-text);
   font-size: 14px;
-  background-color: #fff;
+  background-color: var(--primary-bg);
+  transition: all 0.3s ease;
 }
 </style>

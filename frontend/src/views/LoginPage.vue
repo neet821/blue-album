@@ -81,18 +81,20 @@ const handleLogin = async () => {
 }
 
 .auth-card {
-  background: white;
+  background: var(--primary-bg);
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px var(--shadow);
   padding: 40px;
   width: 100%;
   max-width: 400px;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
 }
 
 .auth-card h2 {
   margin: 0 0 30px 0;
   text-align: center;
-  color: #333;
+  color: var(--primary-text);
 }
 
 .form-group {
@@ -102,29 +104,31 @@ const handleLogin = async () => {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #555;
+  color: var(--secondary-text);
   font-weight: 500;
 }
 
 .form-group input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   font-size: 14px;
   box-sizing: border-box;
-  transition: border-color 0.3s;
+  background-color: var(--primary-bg);
+  color: var(--primary-text);
+  transition: all 0.3s ease;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: var(--link-color);
 }
 
 .btn-primary {
   width: 100%;
   padding: 12px;
-  background-color: #007bff;
+  background-color: var(--link-color);
   color: white;
   border: none;
   border-radius: 4px;
@@ -135,22 +139,22 @@ const handleLogin = async () => {
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #0056b3;
+  background-color: var(--link-hover);
 }
 
 .btn-primary:disabled {
-  background-color: #ccc;
+  background-color: var(--border-color);
   cursor: not-allowed;
 }
 
 .auth-footer {
   margin-top: 20px;
   text-align: center;
-  color: #666;
+  color: var(--secondary-text);
 }
 
 .auth-footer a {
-  color: #007bff;
+  color: var(--link-color);
   text-decoration: none;
 }
 
@@ -159,9 +163,9 @@ const handleLogin = async () => {
 }
 
 .error-message {
-  background-color: #fee;
-  border: 1px solid #fcc;
-  color: #c33;
+  background-color: rgba(255, 68, 68, 0.1);
+  border: 1px solid rgba(255, 68, 68, 0.3);
+  color: #ff4444;
   padding: 12px;
   border-radius: 4px;
   margin-bottom: 20px;

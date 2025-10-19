@@ -93,7 +93,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useAuthStore } from '../stores/auth';
-import axios from 'axios';
+import request from '../utils/request';
 
 const authStore = useAuthStore();
 const currentUser = computed(() => authStore.currentUser);
@@ -127,16 +127,11 @@ async function changePassword() {
   loading.value = true;
   
   try {
-    await axios.put(
-      'http://localhost:8000/api/users/me/password',
+    await request.put(
+      '/users/me/password',
       {
         old_password: passwordForm.value.oldPassword,
         new_password: passwordForm.value.newPassword
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${authStore.token}`
-        }
       }
     );
     

@@ -32,7 +32,8 @@ const routes = [
   {
     path: '/tools',
     name: 'Tools',
-    component: () => import('../views/ToolsPage.vue')
+    component: () => import('../views/ToolsPage.vue'),
+    meta: { requiresAuth: true }
   },
   {
     path: '/tools/links',
@@ -43,7 +44,8 @@ const routes = [
   {
     path: '/profile',
     name: 'Profile',
-    component: () => import('../views/ProfilePage.vue')
+    component: () => import('../views/ProfilePage.vue'),
+    meta: { requiresAuth: true }
   },
   {
     path: '/posts',
@@ -83,6 +85,29 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
+});
+
+// 路由守卫 - 检查认证状态
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token');
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+
+  console.log('🛡️ 路由守卫检查:', {
+    to: to.path,
+    requiresAuth,
+    hasToken: !!token
+  });
+
+  if (requiresAuth && !token) {
+    console.log('⚠️ 需要认证但没有 token,跳转到登录页');
+    // 跳转到登录页并显示消息
+    next({
+      path: '/login',
+      query: { message: '请先登录' }
+    });
+  } else {
+    next();
+  }
 });
 
 export default router;

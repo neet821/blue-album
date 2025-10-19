@@ -54,7 +54,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
-import axios from 'axios';
+import request from '../utils/request';
 
 const route = useRoute();
 const router = useRouter();
@@ -78,7 +78,7 @@ async function fetchPost() {
   
   loading.value = true;
   try {
-    const response = await axios.get(`http://localhost:8000/api/posts/${postId}`);
+    const response = await request.get(`/posts/${postId}`);
     const post = response.data;
     
     // 权限检查
@@ -112,28 +112,12 @@ async function savePost() {
   try {
     if (isEditMode.value) {
       // 更新文章
-      await axios.put(
-        `http://localhost:8000/api/posts/${postId}`,
-        form.value,
-        {
-          headers: {
-            'Authorization': `Bearer ${authStore.token}`
-          }
-        }
-      );
+      await request.put(`/posts/${postId}`, form.value);
       alert('文章更新成功');
       router.push(`/posts/${postId}`);
     } else {
       // 创建新文章
-      const response = await axios.post(
-        'http://localhost:8000/api/posts',
-        form.value,
-        {
-          headers: {
-            'Authorization': `Bearer ${authStore.token}`
-          }
-        }
-      );
+      const response = await request.post('/posts', form.value);
       alert('文章发布成功');
       router.push(`/posts/${response.data.id}`);
     }

@@ -32,6 +32,8 @@
           :key="category.id"
           :class="['category-tab', { active: selectedCategory === category.id }]"
           @click="selectedCategory = category.id"
+          @contextmenu.prevent="editCategory(category)"
+          :title="'右键编辑分类'"
         >
           {{ category.name }} ({{ category.link_count || 0 }})
         </button>
@@ -55,9 +57,10 @@
 
     <!-- 添加分类弹窗 -->
     <CategoryModal 
-      v-if="showAddCategoryModal"
+      v-if="showAddCategoryModal || editingCategory"
       :category="editingCategory"
       @save="saveCategory"
+      @delete="deleteCategory"
       @close="closeCategoryModal"
     />
 
@@ -79,7 +82,7 @@ import { useAuthStore } from '@/stores/auth';
 import LinkCard from './components/LinkCard.vue';
 import CategoryModal from './components/CategoryModal.vue';
 import LinkModal from './components/LinkModal.vue';
-import axios from 'axios';
+import request from '@/utils/request';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -110,9 +113,7 @@ const goBack = () => {
 
 const fetchCategories = async () => {
   try {
-    const response = await axios.get('/api/categories', {
-      headers: { Authorization: `Bearer ${authStore.token}` }
-    });
+    const response = await request.get('/categories');
     categories.value = response.data;
   } catch (error) {
     console.error('获取分类失败:', error);
@@ -121,9 +122,7 @@ const fetchCategories = async () => {
 
 const fetchLinks = async () => {
   try {
-    const response = await axios.get('/api/links', {
-      headers: { Authorization: `Bearer ${authStore.token}` }
-    });
+    const response = await request.get('/links');
     links.value = response.data;
   } catch (error) {
     console.error('获取链接失败:', error);
@@ -145,14 +144,10 @@ const saveCategory = async (categoryData) => {
   try {
     if (editingCategory.value) {
       // 编辑
-      await axios.put(`/api/categories/${editingCategory.value.id}`, categoryData, {
-        headers: { Authorization: `Bearer ${authStore.token}` }
-      });
+      await request.put(`/categories/${editingCategory.value.id}`, categoryData);
     } else {
       // 新增
-      await axios.post('/api/categories', categoryData, {
-        headers: { Authorization: `Bearer ${authStore.token}` }
-      });
+      await request.post('/categories', categoryData);
     }
     await fetchCategories();
     closeCategoryModal();
@@ -171,14 +166,10 @@ const saveLink = async (linkData) => {
   try {
     if (editingLink.value) {
       // 编辑
-      await axios.put(`/api/links/${editingLink.value.id}`, linkData, {
-        headers: { Authorization: `Bearer ${authStore.token}` }
-      });
+      await request.put(`/links/${editingLink.value.id}`, linkData);
     } else {
       // 新增
-      await axios.post('/api/links', linkData, {
-        headers: { Authorization: `Bearer ${authStore.token}` }
-      });
+      await request.post('/links', linkData);
     }
     await loadData();
     closeLinkModal();
@@ -192,13 +183,32 @@ const editLink = (link) => {
   editingLink.value = link;
 };
 
+const editCategory = (category) => {
+  editingCategory.value = category;
+  showAddCategoryModal.value = true;
+};
+
+const deleteCategory = async (categoryId) => {
+  if (!confirm('删除分类将同时删除该分类下的所有链接，确定要继续吗？')) return;
+  
+  try {
+    await request.delete(`/categories/${categoryId}`);
+    await loadData();
+    // 如果当前选中的分类被删除,切换到全部
+    if (selectedCategory.value === categoryId) {
+      selectedCategory.value = null;
+    }
+  } catch (error) {
+    console.error('删除分类失败:', error);
+    alert('删除失败，请重试');
+  }
+};
+
 const deleteLink = async (linkId) => {
   if (!confirm('确定要删除这个链接吗？')) return;
   
   try {
-    await axios.delete(`/api/links/${linkId}`, {
-      headers: { Authorization: `Bearer ${authStore.token}` }
-    });
+    await request.delete(`/links/${linkId}`);
     await loadData();
   } catch (error) {
     console.error('删除链接失败:', error);

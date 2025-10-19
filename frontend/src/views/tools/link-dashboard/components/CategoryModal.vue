@@ -31,12 +31,22 @@
         </div>
 
         <div class="form-actions">
-          <button type="button" @click="$emit('close')" class="btn-cancel">
-            取消
+          <button 
+            v-if="category" 
+            type="button" 
+            @click="handleDelete" 
+            class="btn-delete-category"
+          >
+            🗑️ 删除分类
           </button>
-          <button type="submit" class="btn-submit">
-            {{ category ? '保存修改' : '创建分类' }}
-          </button>
+          <div class="form-actions-right">
+            <button type="button" @click="$emit('close')" class="btn-cancel">
+              取消
+            </button>
+            <button type="submit" class="btn-submit">
+              {{ category ? '保存修改' : '创建分类' }}
+            </button>
+          </div>
         </div>
       </form>
     </div>
@@ -53,7 +63,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['save', 'close']);
+const emit = defineEmits(['save', 'close', 'delete']);
 
 const formData = reactive({
   name: '',
@@ -76,6 +86,11 @@ const handleSubmit = () => {
     name: formData.name.trim(),
     description: formData.description.trim()
   });
+};
+
+const handleDelete = () => {
+  emit('delete', props.category.id);
+  emit('close');
 };
 </script>
 
@@ -179,13 +194,20 @@ form {
 
 .form-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   gap: 12px;
   margin-top: 24px;
 }
 
+.form-actions-right {
+  display: flex;
+  gap: 12px;
+}
+
 .btn-cancel,
-.btn-submit {
+.btn-submit,
+.btn-delete-category {
   padding: 10px 20px;
   border: none;
   border-radius: 6px;
@@ -193,6 +215,15 @@ form {
   font-size: 14px;
   font-weight: 500;
   transition: all 0.3s;
+}
+
+.btn-delete-category {
+  background: #ff4444;
+  color: white;
+}
+
+.btn-delete-category:hover {
+  background: #cc0000;
 }
 
 .btn-cancel {

@@ -97,7 +97,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useAuthStore } from '../stores/auth';
-import axios from 'axios';
+import request from '../utils/request';
 
 const authStore = useAuthStore();
 const currentUser = computed(() => authStore.currentUser);
@@ -118,11 +118,7 @@ async function fetchUsers() {
   error.value = '';
   
   try {
-    const response = await axios.get('http://localhost:8000/api/admin/users', {
-      headers: {
-        'Authorization': `Bearer ${authStore.token}`
-      }
-    });
+    const response = await request.get('/admin/users');
     users.value = response.data;
   } catch (err) {
     error.value = err.response?.data?.detail || '获取用户列表失败';
@@ -147,14 +143,9 @@ function editUser(user) {
 // 保存用户
 async function saveUser() {
   try {
-    await axios.put(
-      `http://localhost:8000/api/admin/users/${editingUser.value.id}`,
-      editForm.value,
-      {
-        headers: {
-          'Authorization': `Bearer ${authStore.token}`
-        }
-      }
+    await request.put(
+      `/admin/users/${editingUser.value.id}`,
+      editForm.value
     );
     
     alert('用户信息更新成功');
@@ -180,14 +171,9 @@ async function toggleUserStatus(user) {
   }
   
   try {
-    await axios.put(
-      `http://localhost:8000/api/admin/users/${user.id}`,
-      { is_active: newStatus },
-      {
-        headers: {
-          'Authorization': `Bearer ${authStore.token}`
-        }
-      }
+    await request.put(
+      `/admin/users/${user.id}`,
+      { is_active: newStatus }
     );
     
     alert(`${action}成功`);
@@ -204,14 +190,7 @@ async function deleteUser(user) {
   }
   
   try {
-    await axios.delete(
-      `http://localhost:8000/api/admin/users/${user.id}`,
-      {
-        headers: {
-          'Authorization': `Bearer ${authStore.token}`
-        }
-      }
-    );
+    await request.delete(`/admin/users/${user.id}`);
     
     alert('用户删除成功');
     fetchUsers();

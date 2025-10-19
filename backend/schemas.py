@@ -128,3 +128,81 @@ class WebsiteLink(WebsiteLinkBase):
 
     class Config:
         from_attributes = True
+
+# 同步观影房间 Schemas
+class SyncRoomCreate(BaseModel):
+    """创建房间请求"""
+    room_name: str
+    control_mode: str = "host_only"  # host_only 或 all_members
+    mode: str = "link"  # link, upload, local
+    video_source: Optional[str] = None
+
+class SyncRoomUpdate(BaseModel):
+    """更新房间信息"""
+    room_name: Optional[str] = None
+    video_source: Optional[str] = None
+    current_time: Optional[float] = None
+    is_playing: Optional[bool] = None
+
+class SyncRoomMemberInfo(BaseModel):
+    """房间成员信息"""
+    id: int
+    user_id: int
+    username: str
+    nickname: Optional[str] = None
+    is_verified: bool = True
+    joined_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class SyncRoomInfo(BaseModel):
+    """房间详细信息"""
+    id: int
+    room_code: str
+    room_name: str
+    host_user_id: int
+    control_mode: str
+    mode: str
+    video_source: Optional[str] = None
+    current_time: float = 0
+    is_playing: bool = False
+    is_active: bool = True
+    created_at: datetime
+    member_count: Optional[int] = 0
+
+    class Config:
+        from_attributes = True
+
+class SyncRoomMessageCreate(BaseModel):
+    """发送消息请求"""
+    message: str
+
+class SyncRoomMessage(BaseModel):
+    """聊天消息"""
+    id: int
+    room_id: int
+    user_id: int
+    username: str
+    message: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+# WebSocket 事件消息
+class WSPlaybackControl(BaseModel):
+    """播放控制消息"""
+    action: str  # play, pause, seek, rate
+    time: Optional[float] = None
+    rate: Optional[float] = None
+
+class WSChatMessage(BaseModel):
+    """聊天消息"""
+    message: str
+
+class WSMemberUpdate(BaseModel):
+    """成员更新消息"""
+    action: str  # join, leave
+    user_id: int
+    username: str

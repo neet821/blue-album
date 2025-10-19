@@ -43,17 +43,25 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 
 const username = ref('');
 const password = ref('');
 const loading = ref(false);
 const errorMessage = ref('');
+
+// 检查 URL 参数中的消息
+onMounted(() => {
+  if (route.query.message) {
+    errorMessage.value = route.query.message;
+  }
+});
 
 const handleLogin = async () => {
   loading.value = true;

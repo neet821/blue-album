@@ -28,6 +28,8 @@ npm-debug.log*
 # 环境变量
 .env
 .env.local
+backend/.env
+frontend/.env
 
 # 操作系统
 .DS_Store

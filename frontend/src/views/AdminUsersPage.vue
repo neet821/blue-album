@@ -26,13 +26,13 @@
               <td>{{ user.username }}</td>
               <td>{{ user.email }}</td>
               <td>
-                <span :class="['role-badge', user.role]">
-                  {{ user.role === 'admin' ? '管理员' : '普通用户' }}
+                <span :class="['role-badge', getRoleClass(user.role)]">
+                  {{ getRoleText(user.role) }}
                 </span>
               </td>
               <td>
-                <span :class="['status-badge', user.is_active ? 'active' : 'inactive']">
-                  {{ user.is_active ? '正常' : '已禁用' }}
+                <span :class="['status-badge', getStatusClass(user.is_active)]">
+                  {{ getStatusText(user.is_active) }}
                 </span>
               </td>
               <td>{{ formatDate(user.created_at) }}</td>
@@ -204,6 +204,31 @@ function formatDate(dateString) {
   return new Date(dateString).toLocaleString('zh-CN');
 }
 
+// 获取角色 CSS 类
+function getRoleClass(role) {
+  const normalizedRole = String(role || 'user').toLowerCase();
+  return (normalizedRole === 'admin' || normalizedRole === 'administrator') ? 'admin' : 'user';
+}
+
+// 获取角色文本
+function getRoleText(role) {
+  const normalizedRole = String(role || 'user').toLowerCase();
+  return (normalizedRole === 'admin' || normalizedRole === 'administrator') ? '管理员' : '普通用户';
+}
+
+// 获取状态 CSS 类
+function getStatusClass(isActive) {
+  // 处理多种可能的值：true, "true", 1, "1" 都视为激活
+  const active = Boolean(isActive === true || isActive === 'true' || isActive === 1 || isActive === '1');
+  return active ? 'active' : 'inactive';
+}
+
+// 获取状态文本
+function getStatusText(isActive) {
+  const active = Boolean(isActive === true || isActive === 'true' || isActive === 1 || isActive === '1');
+  return active ? '正常' : '已禁用';
+}
+
 onMounted(() => {
   fetchUsers();
 });
@@ -255,10 +280,14 @@ th {
 }
 
 .role-badge, .status-badge {
+  display: inline-block;
   padding: 4px 12px;
   border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
+  white-space: nowrap;
+  min-width: 60px;
+  text-align: center;
 }
 
 .role-badge.admin {

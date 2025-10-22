@@ -42,6 +42,18 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/tools/sync-room',
+    name: 'SyncRoomList',
+    component: () => import('../views/SyncRoomList.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/tools/sync-room/:id',
+    name: 'SyncRoomPlayer',
+    component: () => import('../views/SyncRoomPlayer.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/profile',
     name: 'Profile',
     component: () => import('../views/ProfilePage.vue'),

@@ -6,6 +6,7 @@ from datetime import timedelta
 
 from . import crud, models, schemas, security
 from .database import SessionLocal, engine
+from .websocket_server import socket_app  # 导入 WebSocket 应用
 
 # 创建数据库表
 models.Base.metadata.create_all(bind=engine)
@@ -354,3 +355,219 @@ def delete_link(
     if not success:
         raise HTTPException(status_code=404, detail="Link not found")
     return {"message": "Link deleted successfully"}
+
+
+# ==================== 同步观影 API ====================
+from . import sync_room_crud
+from typing import List
+
+@app.post("/api/sync-rooms", response_model=schemas.SyncRoomInfo)
+def create_sync_room(
+    room: schemas.SyncRoomCreate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """创建同步观影房间"""
+    db_room = sync_room_crud.create_room(db, room, current_user.id)
+    
+    # 获取成员数量
+    member_count = len(sync_room_crud.get_room_members(db, db_room.id))
+    
+    room_dict = db_room.__dict__.copy()
+    room_dict['member_count'] = member_count
+    
+    return room_dict
+
+@app.get("/api/sync-rooms/code/{room_code}", response_model=schemas.SyncRoomInfo)
+def get_room_by_code(
+    room_code: str,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """通过房间代码获取房间信息"""
+    room = sync_room_crud.get_room_by_code(db, room_code)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    # 获取成员数量
+    member_count = len(sync_room_crud.get_room_members(db, room.id))
+    
+    room_dict = room.__dict__.copy()
+    room_dict['member_count'] = member_count
+    
+    return room_dict
+
+@app.get("/api/sync-rooms/{room_id}", response_model=schemas.SyncRoomInfo)
+def get_room(
+    room_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """获取房间详细信息"""
+    room = sync_room_crud.get_room_by_id(db, room_id)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    # 验证用户是房间成员
+    if not sync_room_crud.is_room_member(db, room_id, current_user.id):
+        raise HTTPException(status_code=403, detail="Not a room member")
+    
+    # 获取成员数量
+    member_count = len(sync_room_crud.get_room_members(db, room.id))
+    
+    room_dict = room.__dict__.copy()
+    room_dict['member_count'] = member_count
+    
+    return room_dict
+
+@app.get("/api/sync-rooms", response_model=List[schemas.SyncRoomInfo])
+def get_user_rooms(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    skip: int = 0,
+    limit: int = 20
+):
+    """获取用户参与的房间列表"""
+    rooms = sync_room_crud.get_user_rooms(db, current_user.id, skip, limit)
+    return rooms
+
+@app.post("/api/sync-rooms/{room_id}/join")
+def join_sync_room(
+    room_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """加入房间"""
+    room = sync_room_crud.get_room_by_id(db, room_id)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    member = sync_room_crud.join_room(db, room_id, current_user.id)
+    
+    return {
+        "message": "Joined room successfully",
+        "room_id": room_id,
+        "member_id": member.id
+    }
+
+@app.post("/api/sync-rooms/code/{room_code}/join")
+def join_sync_room_by_code(
+    room_code: str,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """通过房间代码加入房间"""
+    room = sync_room_crud.get_room_by_code(db, room_code)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    member = sync_room_crud.join_room(db, room.id, current_user.id)
+    
+    return {
+        "message": "Joined room successfully",
+        "room_id": room.id,
+        "room_code": room.room_code,
+        "member_id": member.id
+    }
+
+@app.post("/api/sync-rooms/{room_id}/leave")
+def leave_sync_room(
+    room_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """离开房间"""
+    success = sync_room_crud.leave_room(db, room_id, current_user.id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Not in this room")
+    
+    return {"message": "Left room successfully"}
+
+@app.delete("/api/sync-rooms/{room_id}")
+def close_sync_room(
+    room_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """关闭房间(仅房主)"""
+    room = sync_room_crud.get_room_by_id(db, room_id)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    if room.host_user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Only host can close the room")
+    
+    success = sync_room_crud.close_room(db, room_id)
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to close room")
+    
+    return {"message": "Room closed successfully"}
+
+@app.get("/api/sync-rooms/{room_id}/members", response_model=List[schemas.SyncRoomMemberInfo])
+def get_room_members(
+    room_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """获取房间成员列表"""
+    room = sync_room_crud.get_room_by_id(db, room_id)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    # 验证用户是房间成员
+    if not sync_room_crud.is_room_member(db, room_id, current_user.id):
+        raise HTTPException(status_code=403, detail="Not a room member")
+    
+    members = sync_room_crud.get_room_members(db, room_id)
+    return members
+
+@app.get("/api/sync-rooms/{room_id}/messages", response_model=List[schemas.SyncRoomMessage])
+def get_room_messages(
+    room_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    skip: int = 0,
+    limit: int = 50
+):
+    """获取房间聊天记录"""
+    room = sync_room_crud.get_room_by_id(db, room_id)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    # 验证用户是房间成员
+    if not sync_room_crud.is_room_member(db, room_id, current_user.id):
+        raise HTTPException(status_code=403, detail="Not a room member")
+    
+    messages = sync_room_crud.get_room_messages(db, room_id, skip, limit)
+    return messages
+
+@app.put("/api/sync-rooms/{room_id}", response_model=schemas.SyncRoomInfo)
+def update_sync_room(
+    room_id: int,
+    room_update: schemas.SyncRoomUpdate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """更新房间信息(仅房主)"""
+    room = sync_room_crud.get_room_by_id(db, room_id)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    if room.host_user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Only host can update the room")
+    
+    updated_room = sync_room_crud.update_room(db, room_id, room_update)
+    
+    # 获取成员数量
+    member_count = len(sync_room_crud.get_room_members(db, updated_room.id))
+    
+    room_dict = updated_room.__dict__.copy()
+    room_dict['member_count'] = member_count
+    
+    return room_dict
+
+
+# =====================================================
+# 挂载 WebSocket 服务（必须在所有路由之后）
+# =====================================================
+app.mount("/ws", socket_app)

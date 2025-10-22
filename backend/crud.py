@@ -69,13 +69,44 @@ def update_user_password(db: Session, user_id: int, old_password: str, new_passw
     return db_user
 
 def delete_user(db: Session, user_id: int):
-    """删除用户(管理员功能)"""
+    """删除用户(管理员功能) - 级联删除所有关联数据"""
     db_user = get_user_by_id(db, user_id)
-    if db_user:
+    if not db_user:
+        return False
+    
+    try:
+        # 1. 删除用户的文章
+        db.query(models.Post).filter(models.Post.author_id == user_id).delete()
+        
+        # 2. 删除用户的链接
+        db.query(models.WebsiteLink).filter(models.WebsiteLink.user_id == user_id).delete()
+        
+        # 3. 删除用户的链接分类（会级联删除该分类下的所有链接）
+        db.query(models.LinkCategory).filter(models.LinkCategory.user_id == user_id).delete()
+        
+        # 4. 删除用户的同步房间消息
+        user_rooms = db.query(models.SyncRoom).filter(models.SyncRoom.host_user_id == user_id).all()
+        for room in user_rooms:
+            db.query(models.SyncRoomMessage).filter(models.SyncRoomMessage.room_id == room.id).delete()
+            db.query(models.SyncRoomMember).filter(models.SyncRoomMember.room_id == room.id).delete()
+        
+        # 5. 删除用户的同步房间
+        db.query(models.SyncRoom).filter(models.SyncRoom.host_user_id == user_id).delete()
+        
+        # 6. 删除用户作为成员的房间关系
+        db.query(models.SyncRoomMember).filter(models.SyncRoomMember.user_id == user_id).delete()
+        
+        # 7. 删除用户发送的房间消息
+        db.query(models.SyncRoomMessage).filter(models.SyncRoomMessage.user_id == user_id).delete()
+        
+        # 8. 最后删除用户
         db.delete(db_user)
         db.commit()
         return True
-    return False
+    except Exception as e:
+        db.rollback()
+        print(f"删除用户失败: {str(e)}")
+        return False
 
 # --- 文章 CRUD ---
 

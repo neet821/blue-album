@@ -60,14 +60,23 @@ def get_user_rooms(db: Session, user_id: int, skip: int = 0, limit: int = 20):
         models.SyncRoom.is_active == True
     ).order_by(models.SyncRoom.created_at.desc()).offset(skip).limit(limit).all()
     
-    # 添加成员数量
+    # 添加在线成员数量
     result = []
     for room in rooms:
-        member_count = db.query(models.SyncRoomMember).filter(
+        # 总成员数
+        total_count = db.query(models.SyncRoomMember).filter(
             models.SyncRoomMember.room_id == room.id
         ).count()
-        room_dict = room.__dict__
-        room_dict['member_count'] = member_count
+        
+        # 在线成员数
+        online_count = db.query(models.SyncRoomMember).filter(
+            models.SyncRoomMember.room_id == room.id,
+            models.SyncRoomMember.is_online == True
+        ).count()
+        
+        room_dict = room.__dict__.copy()
+        room_dict['member_count'] = online_count  # 显示在线成员数
+        room_dict['total_members'] = total_count
         result.append(room_dict)
     
     return result
@@ -120,25 +129,56 @@ def join_room(db: Session, room_id: int, user_id: int, nickname: str = None) -> 
     return member
 
 def leave_room(db: Session, room_id: int, user_id: int) -> bool:
-    """离开房间"""
+    """离开房间 - 设置为离线状态而非删除"""
     member = db.query(models.SyncRoomMember).filter(
         models.SyncRoomMember.room_id == room_id,
         models.SyncRoomMember.user_id == user_id
     ).first()
     
     if member:
-        db.delete(member)
+        # 标记为离线，但保留成员记录
+        member.is_online = False
+        member.last_active_at = datetime.utcnow()
+        db.commit()
+        
+        # 检查是否需要转移房间控制权
+        room = get_room_by_id(db, room_id)
+        if room and room.host_user_id == user_id and room.control_mode == "host_only":
+            # 房主离开，转为全员控制模式
+            room.control_mode = "all_members"
+            room.updated_at = datetime.utcnow()
+            db.commit()
+        
+        return True
+    return False
+
+def rejoin_room(db: Session, room_id: int, user_id: int) -> bool:
+    """重新加入房间（设置为在线状态）"""
+    member = db.query(models.SyncRoomMember).filter(
+        models.SyncRoomMember.room_id == room_id,
+        models.SyncRoomMember.user_id == user_id
+    ).first()
+    
+    if member:
+        member.is_online = True
+        member.last_active_at = datetime.utcnow()
         db.commit()
         return True
     return False
 
-def get_room_members(db: Session, room_id: int):
+def get_room_members(db: Session, room_id: int, online_only: bool = True):
     """获取房间成员列表"""
-    members = db.query(models.SyncRoomMember).options(
+    query = db.query(models.SyncRoomMember).options(
         joinedload(models.SyncRoomMember.user)
     ).filter(
         models.SyncRoomMember.room_id == room_id
-    ).all()
+    )
+    
+    # 默认只返回在线成员
+    if online_only:
+        query = query.filter(models.SyncRoomMember.is_online == True)
+    
+    members = query.all()
     
     result = []
     for member in members:
@@ -148,7 +188,9 @@ def get_room_members(db: Session, room_id: int):
             'username': member.user.username,
             'nickname': member.nickname or member.user.username,
             'is_verified': member.is_verified,
-            'joined_at': member.joined_at.isoformat() if member.joined_at else None  # 修复: 转换datetime为ISO字符串
+            'is_online': member.is_online,
+            'last_active_at': member.last_active_at.isoformat() if member.last_active_at else None,
+            'joined_at': member.joined_at.isoformat() if member.joined_at else None
         })
     
     return result
@@ -193,3 +235,91 @@ def get_room_messages(db: Session, room_id: int, skip: int = 0, limit: int = 50)
         })
     
     return list(reversed(result))  # 返回正序
+
+# 管理员功能
+def get_all_rooms_admin(db: Session, skip: int = 0, limit: int = 100):
+    """管理员获取所有房间列表（包含成员数量和在线人数）"""
+    rooms = db.query(models.SyncRoom).filter(
+        models.SyncRoom.is_active == True
+    ).order_by(models.SyncRoom.created_at.desc()).offset(skip).limit(limit).all()
+    
+    result = []
+    for room in rooms:
+        # 总成员数
+        total_members = db.query(models.SyncRoomMember).filter(
+            models.SyncRoomMember.room_id == room.id
+        ).count()
+        
+        # 在线成员数
+        online_members = db.query(models.SyncRoomMember).filter(
+            models.SyncRoomMember.room_id == room.id,
+            models.SyncRoomMember.is_online == True
+        ).count()
+        
+        # 获取房主信息
+        host = db.query(models.User).filter(models.User.id == room.host_user_id).first()
+        
+        result.append({
+            'id': room.id,
+            'room_code': room.room_code,
+            'room_name': room.room_name,
+            'host_username': host.username if host else 'Unknown',
+            'control_mode': room.control_mode,
+            'mode': room.mode,
+            'total_members': total_members,
+            'online_members': online_members,
+            'is_playing': room.is_playing,
+            'created_at': room.created_at.isoformat() if room.created_at else None,
+            'updated_at': room.updated_at.isoformat() if room.updated_at else None
+        })
+    
+    return result
+
+def delete_room_admin(db: Session, room_id: int) -> bool:
+    """管理员删除房间"""
+    room = get_room_by_id(db, room_id)
+    if not room:
+        return False
+    
+    # 删除房间（级联删除成员和消息）
+    db.delete(room)
+    db.commit()
+    return True
+
+# 自动清理功能
+def cleanup_empty_rooms(db: Session, minutes: int = 10) -> int:
+    """清理超过指定时间无人的房间
+    
+    Args:
+        minutes: 无人房间超时时间（分钟）
+        
+    Returns:
+        删除的房间数量
+    """
+    from datetime import timedelta
+    
+    cutoff_time = datetime.utcnow() - timedelta(minutes=minutes)
+    
+    # 查找所有活跃房间
+    rooms = db.query(models.SyncRoom).filter(
+        models.SyncRoom.is_active == True
+    ).all()
+    
+    deleted_count = 0
+    
+    for room in rooms:
+        # 检查房间是否有在线成员
+        online_members = db.query(models.SyncRoomMember).filter(
+            models.SyncRoomMember.room_id == room.id,
+            models.SyncRoomMember.is_online == True
+        ).count()
+        
+        # 如果没有在线成员且更新时间超过阈值
+        if online_members == 0 and room.updated_at < cutoff_time:
+            db.delete(room)
+            deleted_count += 1
+    
+    if deleted_count > 0:
+        db.commit()
+    
+    return deleted_count

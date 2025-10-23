@@ -202,10 +202,12 @@ async def playback_control(sid, data):
         db.commit()
         
         # 广播给房间所有成员(包括发送者,确保同步)
+        # 修复：seek时也要携带当前的播放状态，确保成员视频状态一致
         await sio.emit('playback_sync', {
             'action': action,
             'time': time,
             'rate': rate,
+            'is_playing': room.is_playing,  # 添加播放状态
             'user_id': user_id
         }, room=f'room_{room_id}')
         

@@ -87,6 +87,8 @@ class SyncRoomMember(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     nickname = Column(String(50), nullable=True)  # 房间内昵称
     is_verified = Column(Boolean, default=True)  # 是否通过哈希校验(模式二使用)
+    is_online = Column(Boolean, default=True)  # 是否在线
+    last_active_at = Column(DateTime, default=datetime.utcnow)  # 最后活跃时间
     joined_at = Column(DateTime, default=datetime.utcnow)
 
     room = relationship("SyncRoom", back_populates="members")

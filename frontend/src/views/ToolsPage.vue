@@ -27,6 +27,36 @@
           </div>
         </div>
 
+        <!-- 管理员工具 - 只有管理员可见 -->
+        <div v-if="isAdmin" class="admin-tools-section">
+          <h2 class="section-title">
+            <span class="icon">👑</span>
+            管理员工具
+          </h2>
+          
+          <div class="admin-tools-grid">
+            <!-- 用户管理 -->
+            <div class="tool-card admin-tool" @click="navigateTo('/admin/users')">
+              <div class="tool-icon">👥</div>
+              <h3>用户管理</h3>
+              <p>管理系统用户，分配权限</p>
+              <div class="tool-meta">
+                <span class="badge admin">管理员专用</span>
+              </div>
+            </div>
+
+            <!-- 房间管理 -->
+            <div class="tool-card admin-tool" @click="navigateTo('/admin/rooms')">
+              <div class="tool-icon">🏠</div>
+              <h3>房间管理</h3>
+              <p>查看和管理所有同步观影房间</p>
+              <div class="tool-meta">
+                <span class="badge admin">管理员专用</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- 预留：未来工具 -->
         <div class="tool-card coming-soon">
           <div class="tool-icon">🔧</div>
@@ -43,8 +73,35 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 
 const router = useRouter();
+const isAdmin = ref(false);
+
+// 检查用户是否为管理员
+const checkAdminStatus = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      isAdmin.value = false;
+      return;
+    }
+
+    const response = await axios.get('/api/users/me', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    isAdmin.value = response.data.role === 'admin';
+  } catch (error) {
+    console.error('检查管理员状态失败:', error);
+    isAdmin.value = false;
+  }
+};
+
+onMounted(() => {
+  checkAdminStatus();
+});
 
 const navigateTo = (path) => {
   router.push(path);
@@ -99,6 +156,61 @@ h1 {
   cursor: not-allowed;
 }
 
+/* 管理员工具区域 */
+.admin-tools-section {
+  grid-column: 1 / -1;
+  margin-top: 40px;
+  padding: 30px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.section-title {
+  color: white;
+  font-size: 24px;
+  margin-bottom: 25px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.section-title .icon {
+  font-size: 32px;
+}
+
+.admin-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.tool-card.admin-tool {
+  background: white;
+  border: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.tool-card.admin-tool:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: #667eea;
+}
+
+.tool-card.admin-tool h3 {
+  font-size: 20px;
+  margin: 15px 0 10px;
+  color: #333;
+}
+
+.tool-card.admin-tool p {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
 .tool-card.coming-soon:hover {
   transform: none;
   border-color: var(--border-color);
@@ -143,9 +255,23 @@ h1 {
   color: var(--secondary-text);
 }
 
+.badge.admin {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+}
+
 @media (max-width: 768px) {
   .tools-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .admin-tools-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-tools-section {
+    padding: 20px;
   }
 }
 </style>

@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # MySQL 数据库
+  mysql:
+    image: mysql:8.0
+    container_name: blue-local-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-blue_local_db}
+      MYSQL_USER: ${MYSQL_USER:-blue_local_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-userpassword}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./scripts/database:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    networks:
+      - blue-local-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # 后端服务
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: blue-local-backend
+    restart: always
+    environment:
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-blue_local_user}:${MYSQL_PASSWORD:-userpassword}@mysql:3306/${MYSQL_DATABASE:-blue_local_db}
+      SECRET_KEY: ${SECRET_KEY:-change-this-to-random-secret-key}
+      DEBUG: ${DEBUG:-False}
+    ports:
+      - "8000:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - blue-local-network
+    volumes:
+      - ./backend:/app/backend
+      - backend_logs:/var/log/blue-local
+
+  # 后台清理服务
+  cleanup:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: blue-local-cleanup
+    restart: always
+    command: ["python", "backend/background_tasks.py"]
+    environment:
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-blue_local_user}:${MYSQL_PASSWORD:-userpassword}@mysql:3306/${MYSQL_DATABASE:-blue_local_db}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - blue-local-network
+    volumes:
+      - ./backend:/app/backend
+
+  # Nginx 反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: blue-local-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/ssl:/etc/nginx/ssl  # SSL证书目录（如果使用HTTPS）
+    depends_on:
+      - backend
+    networks:
+      - blue-local-network
+
+networks:
+  blue-local-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  backend_logs:

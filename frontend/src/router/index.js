@@ -91,6 +91,12 @@ const routes = [
     name: 'AdminUsers',
     component: () => import('../views/AdminUsersPage.vue'),
     meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/rooms',
+    name: 'AdminRooms',
+    component: () => import('../views/AdminRooms.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
   }
 ];
 

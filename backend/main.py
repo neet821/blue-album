@@ -518,7 +518,8 @@ def get_room_members(
     if not sync_room_crud.is_room_member(db, room_id, current_user.id):
         raise HTTPException(status_code=403, detail="Not a room member")
     
-    members = sync_room_crud.get_room_members(db, room_id)
+    # 默认只返回在线成员
+    members = sync_room_crud.get_room_members(db, room_id, online_only=True)
     return members
 
 @app.get("/api/sync-rooms/{room_id}/messages", response_model=List[schemas.SyncRoomMessage])
@@ -558,13 +559,124 @@ def update_sync_room(
     
     updated_room = sync_room_crud.update_room(db, room_id, room_update)
     
-    # 获取成员数量
-    member_count = len(sync_room_crud.get_room_members(db, updated_room.id))
+    # 获取在线成员数量
+    member_count = len(sync_room_crud.get_room_members(db, updated_room.id, online_only=True))
     
     room_dict = updated_room.__dict__.copy()
     room_dict['member_count'] = member_count
     
     return room_dict
+
+
+# =====================================================
+# 管理员同步观影管理接口
+# =====================================================
+@app.get("/api/admin/sync-rooms")
+def admin_get_all_rooms(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    skip: int = 0,
+    limit: int = 100
+):
+    """管理员获取所有房间列表"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    rooms = sync_room_crud.get_all_rooms_admin(db, skip, limit)
+    return {"rooms": rooms, "total": len(rooms)}
+
+@app.get("/api/admin/sync-rooms/{room_id}")
+def admin_get_room_detail(
+    room_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """管理员获取房间详情"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    room = sync_room_crud.get_room_by_id(db, room_id)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    # 获取房间成员（包括离线成员）
+    members = sync_room_crud.get_room_members(db, room_id, online_only=False)
+    
+    # 获取房主信息
+    host = db.query(models.User).filter(models.User.id == room.host_user_id).first()
+    
+    return {
+        "id": room.id,
+        "room_code": room.room_code,
+        "room_name": room.room_name,
+        "host_user_id": room.host_user_id,
+        "host_username": host.username if host else "Unknown",
+        "control_mode": room.control_mode,
+        "mode": room.mode,
+        "video_source": room.video_source,
+        "current_time": room.current_time,
+        "is_playing": room.is_playing,
+        "is_active": room.is_active,
+        "created_at": room.created_at.isoformat() if room.created_at else None,
+        "updated_at": room.updated_at.isoformat() if room.updated_at else None,
+        "members": members
+    }
+
+@app.put("/api/admin/sync-rooms/{room_id}")
+def admin_update_room(
+    room_id: int,
+    room_update: schemas.SyncRoomUpdate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """管理员编辑房间（不限制房主）"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    room = sync_room_crud.get_room_by_id(db, room_id)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    updated_room = sync_room_crud.update_room(db, room_id, room_update)
+    
+    return {
+        "message": "Room updated successfully",
+        "room": {
+            "id": updated_room.id,
+            "room_code": updated_room.room_code,
+            "room_name": updated_room.room_name,
+            "control_mode": updated_room.control_mode
+        }
+    }
+
+@app.delete("/api/admin/sync-rooms/{room_id}")
+def admin_delete_room(
+    room_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """管理员删除房间"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    success = sync_room_crud.delete_room_admin(db, room_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    return {"message": "Room deleted successfully"}
+
+@app.post("/api/admin/sync-rooms/cleanup")
+def admin_cleanup_empty_rooms(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    minutes: int = 10
+):
+    """管理员手动清理空房间"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    deleted_count = sync_room_crud.cleanup_empty_rooms(db, minutes)
+    return {"message": f"Cleaned up {deleted_count} empty rooms"}
 
 
 # =====================================================

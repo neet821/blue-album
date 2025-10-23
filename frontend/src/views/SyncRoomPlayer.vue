@@ -249,13 +249,30 @@ const initWebSocket = () => {
   // 成员离开
   socket.value.on('member_left', async (data) => {
     console.log('成员离开:', data);
-    // 立即刷新成员列表
+    
+    // 检查是否有控制模式变化
+    if (data.control_mode_changed) {
+      ElMessage.warning(data.message || '房主已离开，房间已转为全员控制模式');
+      // 更新房间信息
+      if (roomInfo.value) {
+        roomInfo.value.control_mode = data.new_control_mode;
+      }
+    }
+    
+    // 立即刷新成员列表（只显示在线成员）
     await fetchMembers();
   });
 
   // 播放控制同步
   socket.value.on('playback_sync', (data) => {
     console.log('收到播放同步:', data);
+    
+    // 修复：如果是自己发送的控制指令，则忽略（避免房主自己受影响）
+    if (data.user_id === currentUserId.value) {
+      console.log('忽略自己发送的控制指令');
+      return;
+    }
+    
     isUpdating = true;
     
     if (data.action === 'play') {
@@ -265,6 +282,13 @@ const initWebSocket = () => {
     } else if (data.action === 'seek' && data.time !== undefined) {
       if (videoPlayer.value) {
         videoPlayer.value.currentTime = data.time;
+        // 修复：seek后根据房间播放状态决定是否自动播放
+        // 解决"房主拖动进度条后成员视频暂停但跳到新位置"的问题
+        if (data.is_playing && videoPlayer.value.paused) {
+          videoPlayer.value.play();
+        } else if (!data.is_playing && !videoPlayer.value.paused) {
+          videoPlayer.value.pause();
+        }
       }
     }
     
@@ -273,22 +297,42 @@ const initWebSocket = () => {
     }, 500);
   });
 
-  // 时间同步 - 优化：减少频繁调整，使用更宽松的同步策略
+  // 时间同步 - 优化：快速同步策略，确保延迟<1秒
   socket.value.on('time_sync', (data) => {
     if (!canControl.value && videoPlayer.value) {
       const diff = Math.abs(videoPlayer.value.currentTime - data.time);
       
-      // 大偏差（>3秒）：立即同步
-      // 中等偏差（1-3秒）：允许自然播放，不频繁调整
-      // 小偏差（<1秒）：忽略，避免卡顿
-      if (diff > 3) {
+      // 优化同步策略：
+      // 大偏差（>2秒）：立即强制同步
+      // 中等偏差（0.5-2秒）：平滑调整播放速率
+      // 小偏差（<0.5秒）：忽略，避免卡顿
+      
+      if (diff > 2) {
+        // 大偏差：立即跳转
         isUpdating = true;
         videoPlayer.value.currentTime = data.time;
+        videoPlayer.value.playbackRate = 1.0; // 恢复正常速度
         setTimeout(() => {
           isUpdating = false;
-        }, 500);
+        }, 300);
+      } else if (diff > 0.5) {
+        // 中等偏差：通过调整播放速率平滑追赶
+        if (videoPlayer.value.currentTime < data.time) {
+          // 落后：加速播放
+          videoPlayer.value.playbackRate = 1.1;
+        } else {
+          // 超前：减速播放
+          videoPlayer.value.playbackRate = 0.9;
+        }
+        
+        // 1秒后恢复正常速度
+        setTimeout(() => {
+          if (videoPlayer.value) {
+            videoPlayer.value.playbackRate = 1.0;
+          }
+        }, 1000);
       }
-      // 移除中等偏差的调整，让播放更流畅
+      // 小偏差：忽略
     }
   });
 
@@ -396,7 +440,7 @@ const onTimeUpdate = () => {
   // 只有房主需要定期同步时间，成员不需要频繁发送
   if (!canControl.value) return;
   
-  // 节流：房主每3秒发送一次时间更新（从2秒改为3秒，减少网络压力）
+  // 优化：房主每0.8秒发送一次时间更新，确保延迟在1秒以内
   if (timeUpdateTimer) return;
   
   timeUpdateTimer = setTimeout(() => {
@@ -407,7 +451,7 @@ const onTimeUpdate = () => {
       time: time
     });
     timeUpdateTimer = null;
-  }, 3000); // 从2000ms改为3000ms
+  }, 800); // 优化为800ms，保证延迟<1秒
 };
 
 // 发送消息

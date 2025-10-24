@@ -9,10 +9,15 @@ from dotenv import load_dotenv
 env_path = Path(__file__).parent / '.env'
 load_dotenv(dotenv_path=env_path)
 
-# 数据库连接 URL (从环境变量读取)
+# 导入配置
+from .config import PlatformConfig
+
+config = PlatformConfig()
+
+# 数据库连接 URL (从配置读取)
 SQLALCHEMY_DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "mysql+pymysql://root:@localhost/blue_local_db"  # 默认值
+    f"mysql+pymysql://{config.DB_USER}:{config.DB_PASSWORD}@{config.DB_HOST}:{config.DB_PORT}/{config.DB_NAME}"
 )
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)

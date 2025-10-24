@@ -36,7 +36,7 @@ echo ""
 echo "[3/10] 克隆代码..."
 mkdir -p /home/wwwroot
 cd /home/wwwroot
-git clone https://github.com/neet821/blue-album.git blue-album.top
+git clone https://github.com/WTU-intelligent-software-development/development_4_10.git blue-album.top
 cd blue-album.top
 echo "✅ 代码克隆完成"
 echo ""

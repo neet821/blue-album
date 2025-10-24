@@ -23,7 +23,6 @@ pwd  # 确认当前在 /home/wwwroot/blue-album.top
 
 # 2.1 从 GitHub 克隆代码
 git clone https://github.com/neet821/blue-album.git .
-
 # 2.2 查看克隆的文件
 ls -la
 

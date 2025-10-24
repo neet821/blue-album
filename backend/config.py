@@ -56,7 +56,7 @@ class PlatformConfig:
     
     DB_USER = os.getenv("DB_USER", "root")
     DB_PASSWORD = os.getenv("DB_PASSWORD", "")
-    DB_NAME = os.getenv("DB_NAME", "blue_album")
+    DB_NAME = os.getenv("DB_NAME", "blue_local_db")
     
     # Server configuration
     if ENV == "docker":

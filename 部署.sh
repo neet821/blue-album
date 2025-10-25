@@ -2,16 +2,19 @@
 # 部署脚本：一键拉取代码并构建前端
 # 用法：bash 部署.sh
 cd /home/wwwroot/blue-album.top || { echo "未找到项目根目录"; exit 1; }
-echo "[1/4] 拉取最新代码..."
+echo "[1/5] 拉取最新代码..."
 git pull || { echo "git pull 失败"; exit 1; }
 
-echo "[2/4] 进入前端目录..."
+echo "[2/5] 进入前端目录..."
 cd frontend || { echo "未找到 frontend 目录"; exit 1; }
 
-echo "[3/4] 安装前端依赖（如有变动）..."
+echo "[3/5] 安装前端依赖（如有变动）..."
 npm install || { echo "npm install 失败"; exit 1; }
 
-echo "[4/4] 构建前端..."
+echo "[4/5] 构建前端..."
 npm run build || { echo "npm run build 失败"; exit 1; }
+
+echo "[5/5] 重启后端服务..."
+supervisorctl restart all || { echo "重启后端服务失败"; exit 1; }
 
 echo "部署完成！"

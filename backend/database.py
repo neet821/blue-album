@@ -21,6 +21,11 @@ SQLALCHEMY_DATABASE_URL = os.getenv(
 )
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    pool_pre_ping=True,  # 防止连接断开
+    pool_recycle=1800,   # 30分钟回收一次连接
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()

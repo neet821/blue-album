@@ -59,7 +59,7 @@ async function fetchAuthorPosts() {
   try {
     // 获取该作者的所有文章
     const response = await axios.get(
-      `http://localhost:8000/api/posts?author_id=${authorId}`
+      `/api/posts?author_id=${authorId}`
     );
     posts.value = response.data;
     
@@ -68,7 +68,7 @@ async function fetchAuthorPosts() {
       authorName.value = posts.value[0].author.username;
     } else {
       // 如果没有文章，尝试获取用户信息
-      const userResponse = await axios.get(`http://localhost:8000/api/users/${authorId}`);
+      const userResponse = await axios.get(`/api/users/${authorId}`);
       authorName.value = userResponse.data.username;
     }
   } catch (err) {

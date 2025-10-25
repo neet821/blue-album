@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import axios from 'axios';
+import apiClient, { API_ENDPOINTS } from '../utils/api.js';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -16,14 +16,14 @@ export const useAuthStore = defineStore('auth', {
     async register(username, email, password) {
       try {
         console.log('发送注册请求:', { username, email });
-        const response = await axios.post('http://localhost:8000/api/users/register', {
+        const response = await apiClient.post(API_ENDPOINTS.REGISTER, {
           username,
           email,
           password,
         });
-        
+
         console.log('注册响应:', response.data);
-        
+
         // 注册成功后自动登录
         if (response.data) {
           await this.login(username, password);
@@ -33,9 +33,9 @@ export const useAuthStore = defineStore('auth', {
         console.error('注册失败 - 完整错误:', error);
         console.error('错误响应:', error.response);
         console.error('错误数据:', error.response?.data);
-        
+
         let errorMessage = '注册失败，请重试';
-        
+
         if (error.response?.data?.detail) {
           // FastAPI 返回的错误信息
           if (typeof error.response.data.detail === 'string') {
@@ -47,9 +47,9 @@ export const useAuthStore = defineStore('auth', {
         } else if (error.message) {
           errorMessage = error.message;
         }
-        
-        return { 
-          success: false, 
+
+        return {
+          success: false,
           message: errorMessage
         };
       }
@@ -62,14 +62,14 @@ export const useAuthStore = defineStore('auth', {
         formData.append('username', username);
         formData.append('password', password);
 
-        const response = await axios.post('http://localhost:8000/api/auth/login', formData, {
+        const response = await apiClient.post(API_ENDPOINTS.LOGIN, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
 
         const { access_token } = response.data;
-        
+
         // 保存 token
         this.token = access_token;
         localStorage.setItem('token', access_token);
@@ -80,20 +80,16 @@ export const useAuthStore = defineStore('auth', {
         return { success: true };
       } catch (error) {
         console.error('登录失败:', error);
-        return { 
-          success: false, 
-          message: error.response?.data?.detail || '登录失败，请检查用户名和密码' 
+        return {
+          success: false,
+          message: error.response?.data?.detail || '登录失败，请检查用户名和密码'
         };
       }
     },
 
     async fetchUserInfo() {
       try {
-        const response = await axios.get('http://localhost:8000/api/users/me', {
-          headers: {
-            Authorization: `Bearer ${this.token}`,
-          },
-        });
+        const response = await apiClient.get(API_ENDPOINTS.USER_INFO);
 
         this.user = response.data;
         localStorage.setItem('user', JSON.stringify(response.data));

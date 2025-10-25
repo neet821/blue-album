@@ -112,7 +112,7 @@ async function fetchPosts() {
   
   try {
     const skip = (currentPage.value - 1) * pageSize;
-    let url = `http://localhost:8000/api/posts?skip=${skip}&limit=${pageSize}`;
+    let url = `/api/posts?skip=${skip}&limit=${pageSize}`;
     
     if (searchQuery.value) {
       url += `&search=${encodeURIComponent(searchQuery.value)}`;

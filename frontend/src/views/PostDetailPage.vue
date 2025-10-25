@@ -78,7 +78,7 @@ async function fetchPost() {
   error.value = '';
   
   try {
-    const response = await axios.get(`http://localhost:8000/api/posts/${postId}`);
+    const response = await axios.get(`/api/posts/${postId}`);
     post.value = response.data;
   } catch (err) {
     error.value = err.response?.status === 404 ? '文章不存在' : '获取文章失败';
@@ -99,7 +99,7 @@ async function deletePost() {
   
   try {
     await axios.delete(
-      `http://localhost:8000/api/posts/${postId}`,
+      `/api/posts/${postId}`,
       {
         headers: {
           'Authorization': `Bearer ${authStore.token}`

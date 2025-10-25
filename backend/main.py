@@ -14,6 +14,9 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 # --- CORS 中间件 ---
+# 从配置中获取CORS origins
+from .config import config
+
 # 开发环境:允许所有来源
 origins = [
     "http://localhost:5173",
@@ -22,6 +25,10 @@ origins = [
     "http://127.0.0.1:5174",
     "http://localhost:8000",
 ]
+
+# 添加配置中的CORS origins
+if hasattr(config, 'CORS_ORIGINS'):
+    origins.extend(config.CORS_ORIGINS)
 
 app.add_middleware(
     CORSMiddleware,

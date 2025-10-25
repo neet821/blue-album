@@ -1,7 +1,7 @@
 <template>
   <footer class="blog-footer">
     <div class="container">
-      <p>&copy; 2025 我的个人博客. All Rights Reserved.</p>
+      <p>&copy; 2025 blue-album. All Rights Reserved.</p>
     </div>
   </footer>
 </template>

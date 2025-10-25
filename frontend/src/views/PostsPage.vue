@@ -379,6 +379,78 @@ h1 {
   cursor: not-allowed;
 }
 
+/* 响应式设计 - 平板 */
+@media (max-width: 1024px) {
+  .posts-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  
+  .search-section {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .search-input,
+  .category-filter,
+  .sort-filter {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
+/* 响应式设计 - 手机 */
+@media (max-width: 768px) {
+  .posts-container {
+    padding: 20px 0;
+  }
+  
+  .header-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .btn-create {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+  
+  .search-section {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .posts-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .post-card {
+    padding: 20px;
+  }
+  
+  .post-card h2 {
+    font-size: 18px;
+  }
+  
+  .post-meta {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  
+  .pagination {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .btn-page {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+}
+
 .page-info {
   color: var(--secondary-text);
   font-size: 14px;

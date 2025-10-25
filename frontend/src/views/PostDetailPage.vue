@@ -354,13 +354,84 @@ onMounted(() => {
   background: #7f8c8d;
 }
 
-@media (max-width: 768px) {
+/* 响应式设计 - 平板 */
+@media (max-width: 1024px) {
   .post-content {
-    padding: 24px;
+    padding: 30px;
+  }
+  
+  .post-header h1 {
+    font-size: 28px;
+  }
+  
+  .post-meta {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+}
+
+/* 响应式设计 - 手机 */
+@media (max-width: 768px) {
+  .post-detail-container {
+    padding: 20px 0;
+  }
+  
+  .post-content {
+    padding: 20px;
   }
   
   .post-header h1 {
     font-size: 24px;
+    line-height: 1.3;
+  }
+  
+  .post-meta {
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+    font-size: 13px;
+  }
+  
+  .post-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .btn-edit, .btn-delete {
+    width: 100%;
+    padding: 10px 16px;
+  }
+  
+  .content {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  
+  .markdown-body h1 {
+    font-size: 1.8em;
+  }
+  
+  .markdown-body h2 {
+    font-size: 1.4em;
+  }
+  
+  .markdown-body h3 {
+    font-size: 1.2em;
+  }
+  
+  .markdown-body pre {
+    padding: 12px;
+    font-size: 14px;
+  }
+  
+  .markdown-body table {
+    font-size: 14px;
+  }
+  
+  .markdown-body table th,
+  .markdown-body table td {
+    padding: 6px 8px;
   }
 }
 </style>

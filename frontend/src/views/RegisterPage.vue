@@ -203,4 +203,42 @@ const handleRegister = async () => {
   margin-bottom: 20px;
   text-align: center;
 }
+
+/* 响应式设计 - 平板 */
+@media (max-width: 1024px) {
+  .auth-container {
+    padding: 15px;
+  }
+  
+  .auth-card {
+    padding: 30px;
+  }
+}
+
+/* 响应式设计 - 手机 */
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 10px;
+    min-height: 100vh;
+  }
+  
+  .auth-card {
+    padding: 20px;
+    max-width: 100%;
+  }
+  
+  .auth-card h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .form-group input {
+    font-size: 16px; /* 防止iOS缩放 */
+  }
+  
+  .btn-primary {
+    font-size: 16px;
+    padding: 14px;
+  }
+}
 </style>

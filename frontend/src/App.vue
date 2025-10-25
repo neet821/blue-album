@@ -64,6 +64,22 @@ body {
   padding: 0 20px;
 }
 
+/* 响应式设计 - 平板 */
+@media (max-width: 1024px) {
+  .container {
+    max-width: 90%;
+    padding: 0 15px;
+  }
+}
+
+/* 响应式设计 - 手机 */
+@media (max-width: 768px) {
+  .container {
+    max-width: 95%;
+    padding: 0 10px;
+  }
+}
+
 #app-container {
   max-width: 600px;
   margin: 50px auto;

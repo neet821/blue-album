@@ -1,7 +1,7 @@
 <template>
   <header class="blog-header">
     <div class="container">
-      <h1>我的个人博客</h1>
+      <h1>blue-album</h1>
       <nav>
         <router-link to="/">首页</router-link>
         <!-- 只有管理员能看到文章栏 -->
@@ -61,6 +61,77 @@ const handleLogout = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+/* 响应式设计 - 平板 */
+@media (max-width: 1024px) {
+  .blog-header .container {
+    gap: 10px;
+  }
+  
+  .blog-header nav {
+    gap: 3px;
+  }
+  
+  .blog-header nav a,
+  .blog-header nav .router-link {
+    margin-left: 10px;
+    font-size: 14px;
+  }
+}
+
+/* 响应式设计 - 手机 */
+@media (max-width: 768px) {
+  .blog-header {
+    padding: 15px 0;
+  }
+  
+  .blog-header .container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .blog-header h1 {
+    font-size: 20px;
+    margin-bottom: 0;
+  }
+  
+  .blog-header nav {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-start;
+  }
+  
+  .blog-header nav a,
+  .blog-header nav .router-link {
+    margin-left: 0;
+    margin-right: 12px;
+    font-size: 13px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: var(--secondary-bg);
+    transition: all 0.3s ease;
+  }
+  
+  .blog-header nav a:hover,
+  .blog-header nav .router-link:hover {
+    background-color: var(--link-color);
+    color: white;
+  }
+  
+  .divider {
+    display: none;
+  }
+  
+  .theme-toggle {
+    margin-left: 0;
+    font-size: 16px;
+    padding: 4px 8px;
+  }
 }
 
 .blog-header h1 {

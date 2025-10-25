@@ -1,7 +1,7 @@
 #!/bin/bash
 # 部署脚本：一键拉取代码并构建前端
 # 用法：bash 部署.sh
-
+cd /home/wwwroot/blue-album.top || { echo "未找到项目根目录"; exit 1; }
 echo "[1/4] 拉取最新代码..."
 git pull || { echo "git pull 失败"; exit 1; }
 

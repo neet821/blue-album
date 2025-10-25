@@ -81,6 +81,7 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
+/* ===== 移动优先设计 - 基础样式 (≤480px) ===== */
 .blue-header {
   background: var(--gradient-primary);
   backdrop-filter: blur(10px);
@@ -91,17 +92,18 @@ const handleLogout = () => {
   z-index: 1000;
   box-shadow: 0 4px 20px var(--shadow);
   border-radius: var(--radius-lg);
-  margin: 0 10px;
+  margin: 0 3px;
 }
 
 .blue-header .container {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
   position: relative;
   overflow: hidden;
-  min-height: 80px;
+  min-height: auto;
+  align-items: stretch;
 }
 
 .blue-header::before {
@@ -123,14 +125,16 @@ const handleLogout = () => {
 /* Logo Section */
 .logo-section {
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
+  padding: 5px 0;
   z-index: 2;
 }
 
 .vinyl-disc {
-  width: 50px;
-  height: 50px;
+  width: 25px;
+  height: 25px;
   border-radius: 50%;
   background: linear-gradient(45deg, #1a202c, #2d3748);
   position: relative;
@@ -143,8 +147,8 @@ const handleLogout = () => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 15px;
-  height: 15px;
+  width: 6px;
+  height: 6px;
   background: var(--accent-text);
   border-radius: 50%;
   box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
@@ -155,8 +159,8 @@ const handleLogout = () => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 40px;
-  height: 40px;
+  width: 20px;
+  height: 20px;
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 50%;
 }
@@ -173,13 +177,13 @@ const handleLogout = () => {
 }
 
 .vinyl-grooves::before {
-  width: 30px;
-  height: 30px;
+  width: 15px;
+  height: 15px;
 }
 
 .vinyl-grooves::after {
-  width: 20px;
-  height: 20px;
+  width: 10px;
+  height: 10px;
 }
 
 @keyframes spin {
@@ -189,7 +193,7 @@ const handleLogout = () => {
 
 .site-title {
   margin: 0;
-  font-size: 28px;
+  font-size: 16px;
   font-weight: 900;
   cursor: pointer;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
@@ -208,37 +212,46 @@ const handleLogout = () => {
 
 /* Navigation */
 .main-nav {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 20px;
+  width: 100%;
+  height: 32px;
+  gap: 8px;
   z-index: 2;
-  height: 36px;
 }
 
 .nav-links {
   display: flex;
-  align-items: center;
-  gap: 15px;
-  flex-wrap: wrap;
-  height: 36px;
+  gap: 4px;
+  height: 32px;
+  justify-content: flex-start;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.nav-links::-webkit-scrollbar {
+  display: none;
 }
 
 .nav-link {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 8px 12px;
+  gap: 3px;
+  padding: 6px 6px;
   color: rgba(255,255,255,0.9);
   text-decoration: none;
   border-radius: var(--radius-xl);
   font-weight: 600;
-  font-size: 13px;
+  font-size: 10px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  height: 36px;
-  min-width: 60px;
+  height: 32px;
+  min-width: 40px;
+  flex-shrink: 0;
 }
 
 .nav-link::before {
@@ -269,37 +282,40 @@ const handleLogout = () => {
 }
 
 .nav-icon {
-  font-size: 16px;
+  font-size: 12px;
   filter: drop-shadow(0 0 3px rgba(0,0,0,0.3));
 }
 
 .nav-text {
   font-weight: 600;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  display: none;
 }
 
 /* Navigation Controls */
 .nav-controls {
   display: flex;
   align-items: stretch;
-  gap: 15px;
-  height: 36px;
+  gap: 4px;
+  height: 32px;
+  flex-shrink: 0;
 }
 
 .theme-toggle {
   background: rgba(255,255,255,0.2);
   border: 2px solid rgba(255,255,255,0.3);
-  padding: 10px;
+  padding: 8px;
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .theme-toggle:hover {
@@ -309,7 +325,7 @@ const handleLogout = () => {
 }
 
 .theme-icon {
-  font-size: 18px;
+  font-size: 14px;
   display: block;
 }
 
@@ -317,17 +333,18 @@ const handleLogout = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 8px 14px;
+  gap: 3px;
+  padding: 6px 8px;
   border-radius: var(--radius-xl);
   text-decoration: none;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 10px;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
-  height: 36px;
-  min-width: 70px;
+  height: 32px;
+  min-width: 40px;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .user-link, .auth-link {
@@ -361,152 +378,189 @@ const handleLogout = () => {
   background: rgba(239, 68, 68, 0.3);
 }
 
-/* 响应式设计 - 平板 */
-@media (max-width: 1024px) {
+.user-text, .logout-text, .auth-text {
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  display: none;
+}
+
+/* ===== 平板适配 (481px-768px) ===== */
+@media (min-width: 481px) {
   .blue-header {
     margin: 0 5px;
   }
-  
+
   .blue-header .container {
+    flex-direction: row;
     padding: 15px;
     min-height: 70px;
+    gap: 15px;
   }
-  
+
+  .logo-section {
+    flex: 0 0 auto;
+    justify-content: flex-start;
+    padding: 0;
+  }
+
   .vinyl-disc {
     width: 35px;
     height: 35px;
   }
-  
+
   .vinyl-center {
     width: 10px;
     height: 10px;
   }
-  
+
   .site-title {
     font-size: 22px;
   }
-  
+
   .main-nav {
+    display: flex;
+    flex: 1;
+    height: 32px;
     gap: 15px;
-    height: 32px;
   }
-  
+
   .nav-links {
+    flex: 1;
     gap: 10px;
-    height: 32px;
+    overflow-x: visible;
   }
-  
+
   .nav-link {
+    height: 32px;
     padding: 6px 10px;
     font-size: 12px;
-    height: 32px;
     min-width: 50px;
+    gap: 4px;
   }
-  
+
+  .nav-icon {
+    font-size: 14px;
+  }
+
+  .nav-text {
+    display: inline;
+  }
+
   .nav-controls {
     gap: 8px;
     height: 32px;
-    align-items: stretch;
   }
-  
+
   .theme-toggle {
     width: 32px;
     height: 32px;
     padding: 8px;
-    box-sizing: border-box;
   }
-  
+
   .theme-icon {
     font-size: 16px;
   }
-  
+
   .user-link, .logout-btn, .auth-link {
+    height: 32px;
     padding: 6px 12px;
     font-size: 12px;
-    height: 32px;
     min-width: 60px;
-    box-sizing: border-box;
+    gap: 4px;
+  }
+
+  .user-text, .logout-text, .auth-text {
+    display: inline;
   }
 }
 
-/* 响应式设计 - 手机 */
-@media (max-width: 768px) {
+/* ===== 桌面适配 (≥769px) ===== */
+@media (min-width: 769px) {
   .blue-header {
-    margin: 0 5px;
+    margin: 0 10px;
   }
-  
+
   .blue-header .container {
-    flex-direction: row;
-    gap: 10px;
-    padding: 12px 15px;
-    min-height: 60px;
-    flex-wrap: wrap;
+    padding: 20px;
+    min-height: 80px;
   }
-  
+
   .logo-section {
-    flex: 1;
-    min-width: 120px;
+    gap: 15px;
   }
-  
+
   .vinyl-disc {
+    width: 50px;
+    height: 50px;
+  }
+
+  .vinyl-center {
+    width: 15px;
+    height: 15px;
+  }
+
+  .vinyl-grooves {
+    width: 40px;
+    height: 40px;
+  }
+
+  .vinyl-grooves::before {
     width: 30px;
     height: 30px;
   }
-  
-  .vinyl-center {
-    width: 8px;
-    height: 8px;
+
+  .vinyl-grooves::after {
+    width: 20px;
+    height: 20px;
   }
-  
+
   .site-title {
+    font-size: 28px;
+  }
+
+  .main-nav {
+    height: 36px;
+    gap: 20px;
+  }
+
+  .nav-links {
+    gap: 15px;
+    height: 36px;
+  }
+
+  .nav-link {
+    height: 36px;
+    padding: 8px 12px;
+    font-size: 13px;
+    min-width: 60px;
+    gap: 6px;
+  }
+
+  .nav-icon {
+    font-size: 16px;
+  }
+
+  .nav-controls {
+    gap: 15px;
+    height: 36px;
+  }
+
+  .theme-toggle {
+    width: 36px;
+    height: 36px;
+    padding: 10px;
+  }
+
+  .theme-icon {
     font-size: 18px;
   }
-  
-  .main-nav {
-    flex: 2;
-    gap: 8px;
-    justify-content: flex-end;
-    height: 28px;
-  }
-  
-  .nav-links {
-    gap: 6px;
-    flex-wrap: wrap;
-    height: 28px;
-  }
-  
-  .nav-link {
-    padding: 6px 8px;
-    font-size: 11px;
-    min-width: 60px;
-    justify-content: center;
-    height: 28px;
-  }
-  
-  .nav-controls {
-    gap: 6px;
-    flex-wrap: wrap;
-    height: 28px;
-    align-items: stretch;
-  }
-  
+
   .user-link, .logout-btn, .auth-link {
-    padding: 4px 8px;
-    font-size: 11px;
-    height: 28px;
-    min-width: 50px;
-    box-sizing: border-box;
-  }
-  
-  .theme-toggle {
-    padding: 6px;
-    width: 28px;
-    height: 28px;
-    box-sizing: border-box;
-  }
-  
-  .theme-icon {
-    font-size: 14px;
+    height: 36px;
+    padding: 8px 14px;
+    font-size: 13px;
+    min-width: 70px;
+    gap: 6px;
   }
 }
 </style>

@@ -20,16 +20,6 @@ const routes = [
     component: RegisterPage
   },
   {
-    path: '/archive',
-    name: 'Archive',
-    component: () => import('../views/ArchivePage.vue')
-  },
-  {
-    path: '/about',
-    name: 'About',
-    component: () => import('../views/AboutPage.vue')
-  },
-  {
     path: '/tools',
     name: 'Tools',
     component: () => import('../views/ToolsPage.vue'),

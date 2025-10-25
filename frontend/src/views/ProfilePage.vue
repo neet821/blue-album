@@ -184,7 +184,7 @@ h1 {
 .card {
   background: var(--primary-bg);
   padding: 30px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 2px 8px var(--shadow);
   border: 1px solid var(--border-color);
   transition: all 0.3s ease;
@@ -219,7 +219,7 @@ h1 {
 
 .role-badge {
   padding: 4px 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   font-size: 12px;
   font-weight: 500;
 }
@@ -249,7 +249,7 @@ h1 {
   width: 100%;
   padding: 12px;
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   font-size: 14px;
   background: var(--primary-bg);
   color: var(--primary-text);
@@ -266,7 +266,7 @@ h1 {
   background: rgba(255, 68, 68, 0.1);
   color: #e74c3c;
   border: 1px solid rgba(255, 68, 68, 0.3);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   margin-bottom: 15px;
   font-size: 14px;
 }
@@ -276,7 +276,7 @@ h1 {
   background: rgba(46, 204, 113, 0.1);
   color: #27ae60;
   border: 1px solid rgba(46, 204, 113, 0.3);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   margin-bottom: 15px;
   font-size: 14px;
 }
@@ -287,7 +287,7 @@ h1 {
   background: var(--link-color);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
@@ -306,7 +306,7 @@ h1 {
 .admin-section {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 30px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   text-align: center;
 }
 
@@ -321,7 +321,7 @@ h1 {
   background: white;
   color: #667eea;
   text-decoration: none;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   font-weight: 600;
   transition: transform 0.3s;
 }

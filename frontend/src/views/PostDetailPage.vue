@@ -147,7 +147,7 @@ onMounted(() => {
 .post-content {
   background: var(--primary-bg);
   padding: 40px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 2px 8px var(--shadow);
   border: 1px solid var(--border-color);
 }
@@ -193,7 +193,7 @@ onMounted(() => {
 .btn-edit, .btn-delete {
   padding: 8px 16px;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   font-size: 14px;
   transition: all 0.3s;
@@ -266,7 +266,7 @@ onMounted(() => {
 .markdown-body code {
   background: var(--secondary-bg);
   padding: 2px 6px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   font-family: 'Courier New', monospace;
   font-size: 0.9em;
   color: var(--primary-text);
@@ -275,7 +275,7 @@ onMounted(() => {
 .markdown-body pre {
   background: var(--secondary-bg);
   padding: 16px;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   overflow-x: auto;
   margin-bottom: 16px;
   border: 1px solid var(--border-color);
@@ -344,7 +344,7 @@ onMounted(() => {
   background: #95a5a6;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   font-size: 14px;
   transition: background 0.3s;

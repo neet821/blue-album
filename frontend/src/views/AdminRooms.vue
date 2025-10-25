@@ -346,6 +346,6 @@ import { onBeforeUnmount } from 'vue'
   margin-bottom: 30px;
   padding: 20px;
   background-color: #f5f7fa;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
 }
 </style>

@@ -177,7 +177,7 @@ h1 {
 .editor-form {
   background: var(--primary-bg);
   padding: 40px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 2px 8px var(--shadow);
   border: 1px solid var(--border-color);
 }
@@ -199,7 +199,7 @@ h1 {
   width: 100%;
   padding: 12px;
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   font-size: 16px;
   font-family: inherit;
   background-color: var(--primary-bg);
@@ -224,7 +224,7 @@ h1 {
   background: rgba(255, 68, 68, 0.1);
   color: #e74c3c;
   border: 1px solid rgba(255, 68, 68, 0.3);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   margin-bottom: 20px;
 }
 
@@ -237,7 +237,7 @@ h1 {
 .btn-cancel {
   padding: 12px 24px;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   font-size: 16px;
   cursor: pointer;
   transition: all 0.3s;

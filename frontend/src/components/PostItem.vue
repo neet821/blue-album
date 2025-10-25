@@ -25,7 +25,7 @@ defineProps({
   background-color: var(--primary-bg);
   padding: 30px;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   margin-bottom: 30px;
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px var(--shadow);

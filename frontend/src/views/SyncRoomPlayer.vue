@@ -555,7 +555,7 @@ onBeforeUnmount(() => {
 /* 左侧播放器区域 */
 .player-section {
   background: white;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   padding: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
@@ -582,7 +582,7 @@ onBeforeUnmount(() => {
 
 .video-container {
   background: #000;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   margin-bottom: 20px;
 }
@@ -600,7 +600,7 @@ onBeforeUnmount(() => {
 
 .members-panel {
   background: #f9f9f9;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   padding: 15px;
 }
 
@@ -619,7 +619,7 @@ onBeforeUnmount(() => {
 .member-item {
   background: white;
   padding: 8px 15px;
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   font-size: 14px;
   display: flex;
   align-items: center;
@@ -638,7 +638,7 @@ onBeforeUnmount(() => {
 /* 右侧聊天区域 */
 .chat-section {
   background: white;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
@@ -698,7 +698,7 @@ onBeforeUnmount(() => {
 .message-content {
   background: #f0f0f0;
   padding: 10px 15px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
   color: #333;
   word-wrap: break-word;

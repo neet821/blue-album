@@ -138,7 +138,7 @@ h1 {
 .tool-card {
   background: var(--primary-bg);
   padding: 40px 30px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   border: 2px solid var(--border-color);
   cursor: pointer;
   transition: all 0.3s ease;
@@ -162,7 +162,7 @@ h1 {
   margin-top: 40px;
   padding: 30px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
 }
 
@@ -245,7 +245,7 @@ h1 {
   padding: 4px 12px;
   background: var(--link-color);
   color: white;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   font-size: 12px;
   font-weight: 500;
 }

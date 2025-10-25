@@ -153,7 +153,7 @@ const handleSubmit = () => {
 
 .modal-content {
   background: var(--primary-bg);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   width: 100%;
   max-width: 600px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
@@ -191,7 +191,7 @@ const handleSubmit = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   transition: all 0.3s;
 }
 
@@ -223,7 +223,7 @@ form {
   padding: 10px 12px;
   background: var(--secondary-bg);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   color: var(--primary-text);
   font-size: 14px;
   font-family: inherit;
@@ -259,7 +259,7 @@ form {
 .btn-submit {
   padding: 10px 20px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;

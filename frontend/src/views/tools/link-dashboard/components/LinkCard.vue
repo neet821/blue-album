@@ -77,7 +77,7 @@ const onFaviconError = () => {
   position: relative;
   background: var(--primary-bg);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   transition: all 0.3s;
   box-shadow: 0 2px 4px var(--shadow);
@@ -106,7 +106,7 @@ const onFaviconError = () => {
   align-items: center;
   justify-content: center;
   background: var(--secondary-bg);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-size: 24px;
 }
 
@@ -169,7 +169,7 @@ const onFaviconError = () => {
   padding: 6px 12px;
   background: var(--secondary-bg);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   font-size: 14px;
   transition: all 0.3s;

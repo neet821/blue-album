@@ -257,7 +257,7 @@ h1 {
 
 .users-table {
   background: white;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   overflow-x: auto;
 }
@@ -282,7 +282,7 @@ th {
 .role-badge, .status-badge {
   display: inline-block;
   padding: 4px 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   font-size: 12px;
   font-weight: 500;
   white-space: nowrap;
@@ -318,7 +318,7 @@ th {
 .actions button {
   padding: 6px 12px;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   font-size: 14px;
   transition: all 0.3s;
@@ -369,7 +369,7 @@ th {
 .modal-content {
   background: white;
   padding: 30px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   width: 90%;
   max-width: 500px;
 }
@@ -394,7 +394,7 @@ th {
   width: 100%;
   padding: 10px;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   font-size: 14px;
 }
 
@@ -410,7 +410,7 @@ th {
   color: white;
   padding: 10px 20px;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
 }
 
@@ -423,7 +423,7 @@ th {
   color: white;
   padding: 10px 20px;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
 }
 

@@ -33,7 +33,7 @@ onMounted(() => {
 
 .welcome-section {
   background: var(--primary-bg);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   padding: 20px;
   margin-bottom: 30px;
   box-shadow: 0 2px 4px var(--shadow);

@@ -381,7 +381,7 @@ onMounted(() => {
 
 .action-card {
   background: white;
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   padding: 40px;
   text-align: center;
   cursor: pointer;
@@ -412,7 +412,7 @@ onMounted(() => {
 
 .my-rooms {
   background: white;
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   padding: 40px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
@@ -438,7 +438,7 @@ onMounted(() => {
 
 .room-card {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 15px;
+  border-radius: var(--radius-sm);
   padding: 25px;
   transition: all 0.3s ease;
   color: white;
@@ -492,7 +492,7 @@ onMounted(() => {
 .room-code {
   background: rgba(255, 255, 255, 0.2);
   padding: 5px 10px;
-  border-radius: 5px;
+  border-radius: var(--radius-xs);
   font-family: 'Courier New', monospace;
   font-weight: bold;
   font-size: 14px;
@@ -507,7 +507,7 @@ onMounted(() => {
 
 .badge {
   padding: 5px 12px;
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   font-size: 12px;
   background: rgba(255, 255, 255, 0.2);
 }
@@ -532,7 +532,7 @@ onMounted(() => {
 .host-badge {
   background: rgba(255, 215, 0, 0.3);
   padding: 3px 8px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   font-size: 12px;
   font-weight: bold;
 }
@@ -541,7 +541,7 @@ onMounted(() => {
   margin-top: 10px;
   padding: 10px;
   background: #f5f7fa;
-  border-radius: 5px;
+  border-radius: var(--radius-xs);
   font-size: 13px;
   color: #666;
 }

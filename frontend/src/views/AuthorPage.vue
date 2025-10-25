@@ -127,7 +127,7 @@ onMounted(() => {
   margin-bottom: 40px;
   padding: 30px;
   background: var(--primary-bg);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 2px 8px var(--shadow);
   border: 1px solid var(--border-color);
   transition: all 0.3s ease;
@@ -155,7 +155,7 @@ onMounted(() => {
 .post-card {
   background: var(--primary-bg);
   padding: 24px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 2px 8px var(--shadow);
   border: 1px solid var(--border-color);
   cursor: pointer;
@@ -185,7 +185,7 @@ onMounted(() => {
   background: var(--link-color);
   color: white;
   padding: 2px 8px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   font-size: 12px;
 }
 
@@ -205,7 +205,7 @@ onMounted(() => {
   background: #95a5a6;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   font-size: 16px;
   transition: background 0.3s;

@@ -248,7 +248,7 @@ onMounted(() => {
   margin-bottom: 30px;
   padding: 20px;
   background: var(--primary-bg);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   box-shadow: 0 2px 8px var(--shadow);
 }
 
@@ -269,7 +269,7 @@ onMounted(() => {
   background: var(--secondary-bg);
   color: var(--primary-text);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   font-size: 14px;
   transition: all 0.3s;
@@ -290,7 +290,7 @@ onMounted(() => {
   background: var(--link-color);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
@@ -310,7 +310,7 @@ onMounted(() => {
   margin-bottom: 30px;
   padding: 15px;
   background: var(--primary-bg);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   overflow-x: auto;
   box-shadow: 0 2px 8px var(--shadow);
 }
@@ -320,7 +320,7 @@ onMounted(() => {
   background: var(--secondary-bg);
   color: var(--secondary-text);
   border: 1px solid var(--border-color);
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   cursor: pointer;
   font-size: 14px;
   white-space: nowrap;

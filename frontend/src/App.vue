@@ -19,30 +19,40 @@ const themeStore = useThemeStore();
 </template>
 
 <style>
-/* 全局样式 - 浅色模式 */
+/* Blue Album 主题 - 浅色模式 */
 :root {
   --primary-bg: #ffffff;
-  --secondary-bg: #f9f9f9;
-  --primary-text: #333333;
-  --secondary-text: #666666;
-  --border-color: #eeeeee;
-  --link-color: #007bff;
-  --link-hover: #0056b3;
-  --shadow: rgba(0, 0, 0, 0.1);
-  --shadow-hover: rgba(0, 0, 0, 0.08);
+  --secondary-bg: #f8fafc;
+  --accent-bg: #e3f2fd;
+  --primary-text: #1a202c;
+  --secondary-text: #4a5568;
+  --accent-text: #2b6cb0;
+  --border-color: #e2e8f0;
+  --link-color: #3182ce;
+  --link-hover: #2c5aa0;
+  --shadow: rgba(49, 130, 206, 0.15);
+  --shadow-hover: rgba(49, 130, 206, 0.25);
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
 }
 
-/* 暗黑模式 */
+/* Blue Album 暗黑模式 */
 body.dark-mode {
-  --primary-bg: #1a1a1a;
-  --secondary-bg: #2d2d2d;
-  --primary-text: #e4e4e4;
-  --secondary-text: #a0a0a0;
-  --border-color: #404040;
-  --link-color: #4a9eff;
-  --link-hover: #6db3ff;
-  --shadow: rgba(0, 0, 0, 0.3);
-  --shadow-hover: rgba(0, 0, 0, 0.5);
+  --primary-bg: #0f1419;
+  --secondary-bg: #1a202c;
+  --accent-bg: #2d3748;
+  --primary-text: #f7fafc;
+  --secondary-text: #a0aec0;
+  --accent-text: #63b3ed;
+  --border-color: #2d3748;
+  --link-color: #63b3ed;
+  --link-hover: #90cdf4;
+  --shadow: rgba(99, 179, 237, 0.2);
+  --shadow-hover: rgba(99, 179, 237, 0.3);
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
 }
 
 body {
@@ -90,7 +100,7 @@ body {
 
 .card {
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   padding: 20px;
   margin-top: 20px;
   background-color: var(--primary-bg);
@@ -106,7 +116,7 @@ button {
   background-color: var(--link-color);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   transition: background-color 0.3s ease;
 }
 
@@ -171,7 +181,7 @@ button:hover {
   background-color: var(--primary-bg);
   padding: 30px;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   margin-bottom: 30px;
   transition: all 0.3s ease;
 }

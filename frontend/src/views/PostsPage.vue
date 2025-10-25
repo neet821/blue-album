@@ -50,19 +50,34 @@
           class="post-card"
           @click="goToPost(post.id)"
         >
-          <h2>{{ post.title }}</h2>
-          <div class="post-meta">
-            <span class="author">
-              作者: 
-              <router-link :to="`/author/${post.author_id}`" class="author-link" @click.stop>
-                {{ post.author?.username || '未知' }}
-              </router-link>
-            </span>
-            <span class="category">分类: {{ post.category || '未分类' }}</span>
-            <span class="views">👁️ {{ post.views || 0 }} 次浏览</span>
-            <span class="date">{{ formatDate(post.created_at) }}</span>
+          <div class="post-card-content">
+            <div class="post-header">
+              <h2>{{ post.title }}</h2>
+              <div class="post-category">{{ post.category || '未分类' }}</div>
+            </div>
+            
+            <div class="post-meta">
+              <div class="author-info">
+                <span class="author-avatar">🎵</span>
+                <router-link :to="`/author/${post.author_id}`" class="author-link" @click.stop>
+                  {{ post.author?.username || '未知' }}
+                </router-link>
+              </div>
+              <div class="post-stats">
+                <span class="views">👁️ {{ post.views || 0 }}</span>
+                <span class="date">📅 {{ formatDate(post.created_at) }}</span>
+              </div>
+            </div>
+            
+            <p class="post-preview">{{ getPreview(post.content) }}</p>
+            
+            <div class="post-footer">
+              <div class="read-more">
+                <span>阅读更多</span>
+                <span class="arrow">→</span>
+              </div>
+            </div>
           </div>
-          <p class="post-preview">{{ getPreview(post.content) }}</p>
         </div>
       </div>
 
@@ -211,7 +226,7 @@ h1 {
   background: var(--link-color);
   color: white;
   text-decoration: none;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   font-weight: 500;
   transition: background 0.3s;
 }
@@ -227,7 +242,7 @@ h1 {
   margin-bottom: 30px;
   padding: 20px;
   background: var(--primary-bg);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 2px 8px var(--shadow);
   border: 1px solid var(--border-color);
 }
@@ -236,7 +251,7 @@ h1 {
   flex: 1;
   padding: 12px 16px;
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   font-size: 16px;
   background: var(--primary-bg);
   color: var(--primary-text);
@@ -251,7 +266,7 @@ h1 {
 .category-filter {
   padding: 12px 16px;
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   font-size: 16px;
   background: var(--primary-bg);
   color: var(--primary-text);
@@ -268,7 +283,7 @@ h1 {
 .sort-filter {
   padding: 12px 16px;
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   font-size: 16px;
   background: var(--primary-bg);
   color: var(--primary-text);
@@ -300,44 +315,119 @@ h1 {
 .posts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 24px;
-  margin-bottom: 40px;
+  gap: 30px;
+  margin-bottom: 50px;
+  padding: 20px 0;
 }
 
 .post-card {
   background: var(--primary-bg);
-  padding: 24px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px var(--shadow);
-  border: 1px solid var(--border-color);
+  padding: 0;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 8px 32px var(--shadow);
+  border: 2px solid transparent;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.post-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gradient-primary);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.post-card:hover::before {
+  opacity: 0.05;
 }
 
 .post-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 16px var(--shadow-hover);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px var(--shadow-hover);
+  border-color: var(--accent-text);
+}
+
+.post-card-content {
+  position: relative;
+  z-index: 2;
+  padding: 30px;
+  background: var(--primary-bg);
+  border-radius: var(--radius-lg);
+  margin: 2px;
+}
+
+.post-header {
+  margin-bottom: 20px;
+  position: relative;
 }
 
 .post-card h2 {
-  margin: 0 0 12px 0;
+  margin: 0 0 8px 0;
   color: var(--primary-text);
-  font-size: 20px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.3;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.post-category {
+  display: inline-block;
+  background: var(--gradient-accent);
+  color: white;
+  padding: 4px 12px;
+  border-radius: var(--radius-xs);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .post-meta {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 16px;
-  font-size: 14px;
-  color: var(--secondary-text);
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px 0;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.author-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.author-avatar {
+  width: 32px;
+  height: 32px;
+  background: var(--gradient-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 2px 8px var(--shadow);
 }
 
 .author-link {
-  color: var(--link-color);
+  color: var(--accent-text);
   text-decoration: none;
   font-weight: 600;
-  transition: color 0.3s;
+  font-size: 14px;
+  transition: all 0.3s ease;
 }
 
 .author-link:hover {
@@ -345,10 +435,57 @@ h1 {
   text-decoration: underline;
 }
 
+.post-stats {
+  display: flex;
+  gap: 15px;
+  font-size: 13px;
+  color: var(--secondary-text);
+}
+
+.views, .date {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .post-preview {
   color: var(--secondary-text);
-  line-height: 1.6;
-  margin: 0;
+  line-height: 1.7;
+  margin: 0 0 20px 0;
+  font-size: 15px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.post-footer {
+  border-top: 1px solid var(--border-color);
+  padding-top: 15px;
+}
+
+.read-more {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent-text);
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.read-more:hover {
+  color: var(--link-hover);
+  transform: translateX(5px);
+}
+
+.arrow {
+  transition: transform 0.3s ease;
+}
+
+.read-more:hover .arrow {
+  transform: translateX(3px);
 }
 
 .pagination {
@@ -363,7 +500,7 @@ h1 {
   padding: 10px 20px;
   background: var(--secondary-bg);
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   font-size: 14px;
   color: var(--primary-text);

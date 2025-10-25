@@ -34,35 +34,52 @@
             <span class="theme-icon">{{ themeStore.isDark ? '☀️' : '🌙' }}</span>
           </button>
           
-          <!-- 根据登录状态显示不同的按钮 -->
-          <template v-if="isAuthenticated">
-            <router-link to="/profile" class="user-link">
-              <span class="user-icon">👤</span>
-              <span class="user-text">我的主页</span>
-            </router-link>
-            <button @click="handleLogout" class="logout-btn">
-              <span class="logout-icon">🚪</span>
-              <span class="logout-text">登出</span>
-            </button>
-          </template>
-          <template v-else>
-            <router-link to="/login" class="auth-link login-link">
-              <span class="auth-icon">🔑</span>
-              <span class="auth-text">登录</span>
-            </router-link>
-            <router-link to="/register" class="auth-link register-link">
-              <span class="auth-icon">✨</span>
-              <span class="auth-text">注册</span>
-            </router-link>
-          </template>
+          <!-- 移动端折叠菜单按钮 -->
+          <button @click="toggleMobileMenu" class="mobile-menu-toggle">
+            <span class="hamburger-icon">{{ isMobileMenuOpen ? '✕' : '☰' }}</span>
+          </button>
         </div>
       </nav>
+      
+      <!-- 移动端折叠菜单 -->
+      <div v-if="isMobileMenuOpen" class="mobile-menu-overlay" @click="closeMobileMenu">
+        <div class="mobile-menu" @click.stop>
+          <div class="mobile-menu-content">
+            <router-link to="/" class="mobile-menu-item" @click="closeMobileMenu">
+              <span class="menu-icon">🏠</span>
+              <span class="menu-text">首页</span>
+            </router-link>
+            
+            <router-link v-if="isAdmin" to="/posts" class="mobile-menu-item" @click="closeMobileMenu">
+              <span class="menu-icon">📝</span>
+              <span class="menu-text">文章</span>
+            </router-link>
+            
+            <router-link to="/tools" class="mobile-menu-item" @click="closeMobileMenu">
+              <span class="menu-icon">🛠️</span>
+              <span class="menu-text">工具</span>
+            </router-link>
+            
+            <template v-if="isAuthenticated">
+              <router-link to="/profile" class="mobile-menu-item" @click="closeMobileMenu">
+                <span class="menu-icon">👤</span>
+                <span class="menu-text">主页</span>
+              </router-link>
+              
+              <button @click="handleLogout" class="mobile-menu-item logout-menu-item">
+                <span class="menu-icon">🚪</span>
+                <span class="menu-text">登出</span>
+              </button>
+            </template>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useThemeStore } from '../stores/theme';
@@ -74,9 +91,21 @@ const router = useRouter();
 const isAuthenticated = computed(() => authStore.isAuthenticated);
 const isAdmin = computed(() => authStore.currentUser?.role === 'admin');
 
+// 移动端菜单状态
+const isMobileMenuOpen = ref(false);
+
 const handleLogout = () => {
   authStore.logout();
   router.push('/');
+  closeMobileMenu();
+};
+
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value;
+};
+
+const closeMobileMenu = () => {
+  isMobileMenuOpen.value = false;
 };
 </script>
 
@@ -495,6 +524,110 @@ const handleLogout = () => {
   
   .theme-icon {
     font-size: 14px;
+  }
+  
+  /* 移动端折叠菜单按钮 */
+  .mobile-menu-toggle {
+    display: flex;
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+    padding: 6px;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    width: 28px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    margin-left: 8px;
+  }
+  
+  .mobile-menu-toggle:hover {
+    background: rgba(255,255,255,0.3);
+    transform: scale(1.1);
+  }
+  
+  .hamburger-icon {
+    font-size: 14px;
+    display: block;
+  }
+  
+  /* 移动端折叠菜单 */
+  .mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 2000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding-top: 80px;
+    padding-right: 10px;
+  }
+  
+  .mobile-menu {
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 10px 40px var(--shadow);
+    border: 2px solid var(--accent-text);
+    min-width: 200px;
+    max-width: 280px;
+    overflow: hidden;
+  }
+  
+  .mobile-menu-content {
+    padding: 10px 0;
+  }
+  
+  .mobile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 20px;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .mobile-menu-item:hover {
+    background: var(--bg-hover);
+    transform: translateX(5px);
+  }
+  
+  .mobile-menu-item.router-link-active {
+    background: var(--accent-bg);
+    color: var(--accent-text);
+    font-weight: 600;
+  }
+  
+  .menu-icon {
+    font-size: 20px;
+    width: 24px;
+    text-align: center;
+  }
+  
+  .menu-text {
+    font-weight: 500;
+  }
+  
+  .logout-menu-item {
+    color: #ef4444;
+  }
+  
+  .logout-menu-item:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
   }
 }
 </style>

@@ -81,7 +81,6 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
-/* ===== 移动优先设计 - 基础样式 (≤480px) ===== */
 .blue-header {
   background: var(--gradient-primary);
   backdrop-filter: blur(10px);
@@ -92,18 +91,17 @@ const handleLogout = () => {
   z-index: 1000;
   box-shadow: 0 4px 20px var(--shadow);
   border-radius: var(--radius-lg);
-  margin: 0 3px;
+  margin: 0 10px;
 }
 
 .blue-header .container {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 10px 12px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
   position: relative;
   overflow: hidden;
-  min-height: auto;
-  align-items: stretch;
+  min-height: 80px;
 }
 
 .blue-header::before {
@@ -125,16 +123,14 @@ const handleLogout = () => {
 /* Logo Section */
 .logo-section {
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 10px;
-  padding: 5px 0;
+  gap: 15px;
   z-index: 2;
 }
 
 .vinyl-disc {
-  width: 25px;
-  height: 25px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background: linear-gradient(45deg, #1a202c, #2d3748);
   position: relative;
@@ -147,8 +143,8 @@ const handleLogout = () => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 6px;
-  height: 6px;
+  width: 15px;
+  height: 15px;
   background: var(--accent-text);
   border-radius: 50%;
   box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
@@ -159,8 +155,8 @@ const handleLogout = () => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 20px;
-  height: 20px;
+  width: 40px;
+  height: 40px;
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 50%;
 }
@@ -177,13 +173,13 @@ const handleLogout = () => {
 }
 
 .vinyl-grooves::before {
-  width: 15px;
-  height: 15px;
+  width: 30px;
+  height: 30px;
 }
 
 .vinyl-grooves::after {
-  width: 10px;
-  height: 10px;
+  width: 20px;
+  height: 20px;
 }
 
 @keyframes spin {
@@ -193,7 +189,7 @@ const handleLogout = () => {
 
 .site-title {
   margin: 0;
-  font-size: 16px;
+  font-size: 28px;
   font-weight: 900;
   cursor: pointer;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
@@ -212,46 +208,37 @@ const handleLogout = () => {
 
 /* Navigation */
 .main-nav {
-  display: grid;
-  grid-template-columns: 1fr auto;
+  display: flex;
   align-items: center;
-  width: 100%;
-  height: 32px;
-  gap: 8px;
+  gap: 20px;
   z-index: 2;
+  height: 36px;
 }
 
 .nav-links {
   display: flex;
-  gap: 4px;
-  height: 32px;
-  justify-content: flex-start;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.nav-links::-webkit-scrollbar {
-  display: none;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  height: 36px;
 }
 
 .nav-link {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  padding: 6px 6px;
+  gap: 6px;
+  padding: 8px 12px;
   color: rgba(255,255,255,0.9);
   text-decoration: none;
   border-radius: var(--radius-xl);
   font-weight: 600;
-  font-size: 10px;
+  font-size: 13px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  height: 32px;
-  min-width: 40px;
-  flex-shrink: 0;
+  height: 36px;
+  min-width: 60px;
 }
 
 .nav-link::before {
@@ -282,40 +269,37 @@ const handleLogout = () => {
 }
 
 .nav-icon {
-  font-size: 12px;
+  font-size: 16px;
   filter: drop-shadow(0 0 3px rgba(0,0,0,0.3));
 }
 
 .nav-text {
   font-weight: 600;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-  display: none;
 }
 
 /* Navigation Controls */
 .nav-controls {
   display: flex;
   align-items: stretch;
-  gap: 4px;
-  height: 32px;
-  flex-shrink: 0;
+  gap: 15px;
+  height: 36px;
 }
 
 .theme-toggle {
   background: rgba(255,255,255,0.2);
   border: 2px solid rgba(255,255,255,0.3);
-  padding: 8px;
+  padding: 10px;
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  flex-shrink: 0;
 }
 
 .theme-toggle:hover {
@@ -325,7 +309,7 @@ const handleLogout = () => {
 }
 
 .theme-icon {
-  font-size: 14px;
+  font-size: 18px;
   display: block;
 }
 
@@ -333,18 +317,17 @@ const handleLogout = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  padding: 6px 8px;
+  gap: 6px;
+  padding: 8px 14px;
   border-radius: var(--radius-xl);
   text-decoration: none;
   font-weight: 600;
-  font-size: 10px;
+  font-size: 13px;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
-  height: 32px;
-  min-width: 40px;
+  height: 36px;
+  min-width: 70px;
   box-sizing: border-box;
-  flex-shrink: 0;
 }
 
 .user-link, .auth-link {
@@ -378,189 +361,140 @@ const handleLogout = () => {
   background: rgba(239, 68, 68, 0.3);
 }
 
-.user-text, .logout-text, .auth-text {
-  font-weight: 600;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-  display: none;
-}
-
-/* ===== 平板适配 (481px-768px) ===== */
-@media (min-width: 481px) {
+/* 响应式设计 - 平板 */
+@media (max-width: 1024px) {
   .blue-header {
     margin: 0 5px;
   }
-
+  
   .blue-header .container {
-    flex-direction: row;
     padding: 15px;
     min-height: 70px;
-    gap: 15px;
   }
-
-  .logo-section {
-    flex: 0 0 auto;
-    justify-content: flex-start;
-    padding: 0;
-  }
-
+  
   .vinyl-disc {
     width: 35px;
     height: 35px;
   }
-
+  
   .vinyl-center {
     width: 10px;
     height: 10px;
   }
-
+  
   .site-title {
     font-size: 22px;
   }
-
+  
   .main-nav {
-    display: flex;
-    flex: 1;
-    height: 32px;
     gap: 15px;
-  }
-
-  .nav-links {
-    flex: 1;
-    gap: 10px;
-    overflow-x: visible;
-  }
-
-  .nav-link {
     height: 32px;
+  }
+  
+  .nav-links {
+    gap: 10px;
+    height: 32px;
+  }
+  
+  .nav-link {
     padding: 6px 10px;
     font-size: 12px;
+    height: 32px;
     min-width: 50px;
-    gap: 4px;
   }
-
-  .nav-icon {
-    font-size: 14px;
-  }
-
-  .nav-text {
-    display: inline;
-  }
-
+  
   .nav-controls {
     gap: 8px;
     height: 32px;
+    align-items: stretch;
   }
-
+  
   .theme-toggle {
     width: 32px;
     height: 32px;
     padding: 8px;
+    box-sizing: border-box;
   }
-
+  
   .theme-icon {
     font-size: 16px;
   }
-
+  
   .user-link, .logout-btn, .auth-link {
-    height: 32px;
     padding: 6px 12px;
     font-size: 12px;
+    height: 32px;
     min-width: 60px;
-    gap: 4px;
-  }
-
-  .user-text, .logout-text, .auth-text {
-    display: inline;
+    box-sizing: border-box;
   }
 }
 
-/* ===== 桌面适配 (≥769px) ===== */
-@media (min-width: 769px) {
+/* 响应式设计 - 手机 */
+@media (max-width: 768px) {
   .blue-header {
-    margin: 0 10px;
+    margin: 0 5px;
   }
-
+  
   .blue-header .container {
-    padding: 20px;
-    min-height: 80px;
+    flex-direction: row;
+    gap: 10px;
+    padding: 12px 15px;
+    min-height: 60px;
+    flex-wrap: wrap;
   }
-
+  
   .logo-section {
-    gap: 15px;
+    flex: 1;
+    min-width: 120px;
   }
-
+  
   .vinyl-disc {
-    width: 50px;
-    height: 50px;
-  }
-
-  .vinyl-center {
-    width: 15px;
-    height: 15px;
-  }
-
-  .vinyl-grooves {
-    width: 40px;
-    height: 40px;
-  }
-
-  .vinyl-grooves::before {
     width: 30px;
     height: 30px;
   }
-
-  .vinyl-grooves::after {
-    width: 20px;
-    height: 20px;
+  
+  .vinyl-center {
+    width: 8px;
+    height: 8px;
   }
-
+  
   .site-title {
-    font-size: 28px;
-  }
-
-  .main-nav {
-    height: 36px;
-    gap: 20px;
-  }
-
-  .nav-links {
-    gap: 15px;
-    height: 36px;
-  }
-
-  .nav-link {
-    height: 36px;
-    padding: 8px 12px;
-    font-size: 13px;
-    min-width: 60px;
-    gap: 6px;
-  }
-
-  .nav-icon {
-    font-size: 16px;
-  }
-
-  .nav-controls {
-    gap: 15px;
-    height: 36px;
-  }
-
-  .theme-toggle {
-    width: 36px;
-    height: 36px;
-    padding: 10px;
-  }
-
-  .theme-icon {
     font-size: 18px;
   }
-
-  .user-link, .logout-btn, .auth-link {
-    height: 36px;
-    padding: 8px 14px;
-    font-size: 13px;
-    min-width: 70px;
+  
+  .main-nav {
+    flex: 2;
+    gap: 8px;
+    justify-content: flex-end;
+    height: 28px;
+  }
+  
+  /* PC端导航链接在移动端隐藏 */
+  .nav-links {
+    display: none;
+  }
+  
+  .nav-controls {
     gap: 6px;
+    flex-wrap: wrap;
+    height: 28px;
+    align-items: stretch;
+  }
+  
+  /* PC端用户按钮在移动端隐藏 */
+  .user-link, .logout-btn, .auth-link {
+    display: none;
+  }
+  
+  .theme-toggle {
+    padding: 6px;
+    width: 28px;
+    height: 28px;
+    box-sizing: border-box;
+  }
+  
+  .theme-icon {
+    font-size: 14px;
   }
 }
 </style>

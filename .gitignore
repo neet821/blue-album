@@ -38,6 +38,9 @@ frontend/.env
 frontend/.env.local
 frontend/.env.*.local
 
+# 本地开发启动脚本
+start-dev.bat
+
 # 运行时数据（不同步到 git）
 uploads/
 logs/

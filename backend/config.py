@@ -89,8 +89,14 @@ class PlatformConfig:
     ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
     
     # File upload settings
-    MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
-    ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".mp4", ".webm"}
+    MAX_UPLOAD_SIZE = 100 * 1024 * 1024  # 100MB (增加文件大小限制)
+    ALLOWED_EXTENSIONS = {
+        # 图片格式
+        ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".tiff", ".svg",
+        # 视频格式
+        ".mp4", ".webm", ".avi", ".mov", ".wmv", ".flv", ".mkv", ".m4v",
+        ".3gp", ".mpg", ".mpeg", ".ts", ".mts", ".m2ts", ".vob"
+    }
     
     # Logging
     LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO" if ENV == "production" else "DEBUG")

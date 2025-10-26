@@ -81,7 +81,7 @@
           <el-radio-group v-model="createForm.mode">
             <el-radio label="link">外部链接</el-radio>
             <el-radio label="upload" disabled>上传视频(开发中)</el-radio>
-            <el-radio label="local" disabled>本地视频(开发中)</el-radio>
+            <el-radio label="local">本地视频同步</el-radio>
           </el-radio-group>
         </el-form-item>
 
@@ -92,6 +92,18 @@
             type="textarea"
             :rows="2"
           />
+        </el-form-item>
+
+        <el-form-item v-if="createForm.mode === 'local'">
+          <div class="local-mode-notice">
+            <el-alert
+              type="info"
+              :closable="false"
+              show-icon
+            >
+              � 本地视频同步：进入房间后，所有成员将选择本地相同名称的视频文件进行同步播放
+            </el-alert>
+          </div>
         </el-form-item>
 
         <el-form-item label="控制模式">
@@ -195,6 +207,8 @@ const createRoom = async () => {
     ElMessage.warning('请输入视频链接');
     return;
   }
+
+  // local模式不需要预先填写文件名，用户进入房间后选择
 
   creating.value = true;
   try {
@@ -548,6 +562,20 @@ onMounted(() => {
 
 .form-tip p {
   margin: 0;
+}
+
+.local-mode-notice {
+  margin-top: 10px;
+}
+
+.local-mode-notice .el-alert {
+  background: rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  color: #666;
+}
+
+.local-mode-notice .el-alert__icon {
+  color: #667eea;
 }
 
 /* 暗黑模式支持 */

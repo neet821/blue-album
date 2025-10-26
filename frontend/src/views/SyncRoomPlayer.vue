@@ -14,13 +14,57 @@
           </div>
         </div>
 
+        <!-- 本地视频文件选择器 -->
+        <div v-if="roomInfo.mode === 'local'" class="local-video-selector">
+          <div class="file-selector">
+            <input
+              type="file"
+              ref="localFileInput"
+              accept="video/*"
+              @change="onLocalFileSelected"
+              style="display: none"
+            />
+
+            <!-- 文件选择区域 -->
+            <div
+              class="file-drop-zone"
+              @click="$refs.localFileInput.click()"
+              :class="{ 'has-file': localVideoUrl !== null }"
+            >
+              <div class="file-drop-content">
+                <div class="file-icon">
+                  <i class="el-icon-video-play" v-if="!localVideoUrl"></i>
+                  <i class="el-icon-check" v-else></i>
+                </div>
+                <div class="file-text">
+                  <p v-if="!localVideoUrl" class="file-title">点击选择本地视频文件</p>
+                  <p v-else class="file-title">✅ 已选择视频文件</p>
+                  <p class="file-subtitle">
+                    请选择任意视频文件，所有成员将同步播放进度
+                    <span v-if="localVideoUrl" class="file-status">(已加载)</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="local-mode-tip">
+            <el-alert
+              type="info"
+              :closable="false"
+              show-icon
+            >
+              💡 本地视频同步模式：请选择与房主相同的视频文件，所有成员的播放进度将保持同步
+            </el-alert>
+          </div>
+        </div>
+
         <!-- 视频播放器 -->
         <div class="video-container">
           <video
             ref="videoPlayer"
             class="video-player"
             controls
-            :src="roomInfo.video_source"
+            :src="currentVideoSrc"
             @play="onPlay"
             @pause="onPause"
             @seeking="onSeeking"
@@ -127,7 +171,11 @@ const currentUsername = computed(() => authStore.user?.username);
 
 const videoPlayer = ref(null);
 const chatContainer = ref(null);
+const localFileInput = ref(null);
 const socket = ref(null);
+
+// 本地视频相关
+const localVideoUrl = ref(null);
 
 const roomInfo = ref({
   id: 0,
@@ -150,6 +198,14 @@ const canControl = computed(() => {
   return isHost.value || roomInfo.value.control_mode === 'all_members';
 });
 
+// 当前视频源（根据模式动态选择）
+const currentVideoSrc = computed(() => {
+  if (roomInfo.value.mode === 'local') {
+    return localVideoUrl.value;
+  }
+  return roomInfo.value.video_source;
+});
+
 // 防止重复触发事件
 let isUpdating = false;
 let timeUpdateTimer = null;
@@ -160,8 +216,8 @@ const fetchRoomInfo = async () => {
     const response = await request.get(`/sync-rooms/${roomId.value}`);
     roomInfo.value = response.data;
     
-    // 设置视频源
-    if (videoPlayer.value && roomInfo.value.video_source) {
+    // 设置视频源（仅link模式）
+    if (videoPlayer.value && roomInfo.value.mode === 'link' && roomInfo.value.video_source) {
       videoPlayer.value.src = roomInfo.value.video_source;
     }
   } catch (error) {
@@ -189,6 +245,36 @@ const fetchMessages = async () => {
   } catch (error) {
     console.error('获取聊天记录失败', error);
   }
+};
+
+// 本地视频文件选择处理
+const onLocalFileSelected = (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // 验证文件类型
+  if (!file.type.startsWith('video/')) {
+    ElMessage.warning('请选择有效的视频文件');
+    return;
+  }
+
+  // 创建本地URL
+  const url = URL.createObjectURL(file);
+  localVideoUrl.value = url;
+
+  ElMessage.success(`已选择视频文件：${file.name}`);
+
+  // 如果视频播放器已准备好，设置源
+  nextTick(() => {
+    if (videoPlayer.value) {
+      videoPlayer.value.src = url;
+      // 如果房间正在播放，同步状态
+      if (roomInfo.value.is_playing) {
+        videoPlayer.value.currentTime = roomInfo.value.current_time;
+        videoPlayer.value.play().catch(console.error);
+      }
+    }
+  });
 };
 
 // 初始化 WebSocket
@@ -790,6 +876,90 @@ onBeforeUnmount(() => {
   .own-message .message-content {
     background: #667eea;
     color: white;
+  }
+
+  /* 本地视频模式样式 */
+  .local-video-selector {
+    margin-bottom: 20px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .file-selector {
+    margin-bottom: 15px;
+  }
+
+  .file-drop-zone {
+    border: 2px dashed rgba(102, 126, 234, 0.5);
+    border-radius: 8px;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(102, 126, 234, 0.05);
+  }
+
+  .file-drop-zone:hover {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+  }
+
+  .file-drop-zone.has-file {
+    border-color: #67c23a;
+    background: rgba(103, 194, 58, 0.1);
+  }
+
+  .file-drop-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .file-icon {
+    font-size: 48px;
+    color: #667eea;
+  }
+
+  .file-drop-zone.has-file .file-icon {
+    color: #67c23a;
+  }
+
+  .file-text {
+    color: #e0e0e0;
+  }
+
+  .file-title {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0 0 5px 0;
+  }
+
+  .file-subtitle {
+    font-size: 14px;
+    margin: 0;
+    opacity: 0.8;
+  }
+
+  .file-status {
+    color: #67c23a;
+    font-weight: 500;
+  }
+
+  .local-mode-tip {
+    margin-top: 10px;
+  }
+
+  .local-mode-tip .el-alert {
+    background: rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    color: #e0e0e0;
+  }
+
+  .local-mode-tip .el-alert__icon {
+    color: #667eea;
   }
 }
 </style>

@@ -20,7 +20,7 @@
             <input
               type="file"
               ref="localFileInput"
-              accept="video/*"
+              accept="video/mp4,video/webm,video/avi,video/quicktime,video/x-ms-wmv,video/x-flv,video/x-matroska,video/mp2t,video/3gpp,video/mpeg,.mkv,.avi,.mov,.wmv,.flv,.m4v,.3gp,.mpg,.mpeg,.ts,.mts,.m2ts,.vob"
               @change="onLocalFileSelected"
               style="display: none"
             />
@@ -40,7 +40,7 @@
                   <p v-if="!localVideoUrl" class="file-title">点击选择本地视频文件</p>
                   <p v-else class="file-title">✅ 已选择视频文件</p>
                   <p class="file-subtitle">
-                    请选择任意视频文件，所有成员将同步播放进度
+                    支持格式：MP4, WebM, AVI, MOV, MKV, WMV, FLV, 3GP, MPEG 等
                     <span v-if="localVideoUrl" class="file-status">(已加载)</span>
                   </p>
                 </div>

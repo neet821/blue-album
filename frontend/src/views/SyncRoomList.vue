@@ -88,7 +88,7 @@
         <el-form-item label="视频链接" v-if="createForm.mode === 'link'">
           <el-input 
             v-model="createForm.video_source" 
-            placeholder="输入视频URL(支持 .mp4, .webm 等)"
+            placeholder="输入视频URL(支持 MP4, WebM, AVI, MOV, MKV 等格式)"
             type="textarea"
             :rows="2"
           />

@@ -84,6 +84,9 @@
           <span class="mobile-nav-text">登录</span>
         </router-link>
       </div>
+    </div>
+  </header>
+</template>
 
 <script setup>
 import { computed } from 'vue';

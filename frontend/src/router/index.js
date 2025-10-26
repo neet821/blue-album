@@ -96,8 +96,13 @@ const router = createRouter({
 });
 
 // 路由守卫 - 检查认证状态
+const getStorageKey = (key) => {
+  const port = window.location.port || '80';
+  return `${key}_${port}`;
+};
+
 router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem(getStorageKey('token'));
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
 
   console.log('🛡️ 路由守卫检查:', {

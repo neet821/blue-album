@@ -210,12 +210,23 @@ const currentVideoSrc = computed(() => {
 let isUpdating = false;
 let timeUpdateTimer = null;
 
-// 获取房间信息
+// 获取房间信息（支持管理员直接查看）
 const fetchRoomInfo = async () => {
   try {
-    const response = await request.get(`/sync-rooms/${roomId.value}`);
-    roomInfo.value = response.data;
-    
+    // 优先使用普通接口
+    try {
+      const response = await request.get(`/sync-rooms/${roomId.value}`);
+      roomInfo.value = response.data;
+    } catch (err) {
+      // 普通接口可能拒绝非成员访问（403），若当前用户是管理员则尝试管理员接口
+      if (authStore.user?.role === 'admin' && err.response?.status === 403) {
+        const adminResp = await request.get(`/admin/sync-rooms/${roomId.value}`);
+        roomInfo.value = adminResp.data;
+      } else {
+        throw err;
+      }
+    }
+
     // 设置视频源（仅link模式）
     if (videoPlayer.value && roomInfo.value.mode === 'link' && roomInfo.value.video_source) {
       videoPlayer.value.src = roomInfo.value.video_source;

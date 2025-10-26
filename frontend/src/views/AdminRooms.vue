@@ -61,9 +61,12 @@
         </template>
       </el-table-column>
       
-      <el-table-column label="操作" width="180" fixed="right">
+      <el-table-column label="操作" width="220" fixed="right">
         <template #default="{ row }">
-          <el-button link type="primary" size="small" @click="viewRoom(row)">
+          <el-button link type="primary" size="small" @click="enterRoom(row)">
+            进入房间
+          </el-button>
+          <el-button link type="info" size="small" @click="viewRoom(row)">
             查看
           </el-button>
           <el-button link type="warning" size="small" @click="editRoom(row)">
@@ -170,6 +173,15 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+// 根据端口生成唯一的存储key，避免多实例串账户
+const getStorageKey = (key) => {
+  const port = window.location.port || '80';
+  return `${key}_${port}`;
+};
+
+const router = useRouter()
 import { ElMessage } from 'element-plus'
 import { Refresh, Delete } from '@element-plus/icons-vue'
 import axios from 'axios'
@@ -218,7 +230,7 @@ const formatDate = (dateStr) => {
 const refreshRooms = async () => {
   loading.value = true
   try {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem(getStorageKey('token'))
     const response = await axios.get('/api/admin/sync-rooms', {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -234,7 +246,7 @@ const refreshRooms = async () => {
 
 const deleteRoom = async (roomId) => {
   try {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem(getStorageKey('token'))
     await axios.delete(`/api/admin/sync-rooms/${roomId}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -248,7 +260,7 @@ const deleteRoom = async (roomId) => {
 
 const viewRoom = async (room) => {
   try {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem(getStorageKey('token'))
     const response = await axios.get(`/api/admin/sync-rooms/${room.id}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -258,6 +270,11 @@ const viewRoom = async (room) => {
     console.error('获取房间详情失败:', error)
     ElMessage.error(error.response?.data?.detail || '获取房间详情失败')
   }
+}
+
+const enterRoom = (room) => {
+  // 管理员直接进入房间页面
+  router.push(`/tools/sync-room/${room.id}`)
 }
 
 const editRoom = (room) => {
@@ -272,7 +289,7 @@ const editRoom = (room) => {
 
 const saveRoom = async () => {
   try {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem(getStorageKey('token'))
     await axios.put(`/api/admin/sync-rooms/${editingRoomId.value}`, editForm.value, {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -288,7 +305,7 @@ const saveRoom = async () => {
 const cleanupEmptyRooms = async () => {
   loading.value = true
   try {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem(getStorageKey('token'))
     const response = await axios.post('/api/admin/sync-rooms/cleanup', {}, {
       headers: { Authorization: `Bearer ${token}` }
     })

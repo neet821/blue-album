@@ -252,4 +252,11 @@ a {
 a:hover {
   color: var(--link-hover);
 }
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  main {
+    padding-bottom: 80px; /* 为底部导航栏留出空间 */
+  }
+}
 </style>

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, validator
 from typing import List, Optional
 from datetime import datetime
 
@@ -173,6 +173,14 @@ class SyncRoomInfo(BaseModel):
 
     class Config:
         from_attributes = True
+
+    @validator('created_at', pre=True, always=True)
+    def convert_created_at_to_beijing(cls, v):
+        """将创建时间转换为北京时间"""
+        from .sync_room_crud import to_beijing_time
+        if isinstance(v, datetime):
+            return to_beijing_time(v)
+        return v
 
 class SyncRoomMessageCreate(BaseModel):
     """发送消息请求"""

@@ -290,6 +290,16 @@ const initWebSocket = () => {
           videoPlayer.value.pause();
         }
       }
+    } else if (data.action === 'sync' && data.time !== undefined) {
+      // 处理同步请求：设置到指定时间和播放状态
+      if (videoPlayer.value) {
+        videoPlayer.value.currentTime = data.time;
+        if (data.is_playing && videoPlayer.value.paused) {
+          videoPlayer.value.play();
+        } else if (!data.is_playing && !videoPlayer.value.paused) {
+          videoPlayer.value.pause();
+        }
+      }
     }
     
     setTimeout(() => {
@@ -361,7 +371,13 @@ const onPlay = () => {
   if (isUpdating || isControllingPlayback) return;
   
   if (!canControl.value) {
-    // 如果没有控制权限,阻止播放
+    // 没有控制权限时，立即同步房主的播放状态
+    console.log('成员尝试播放，同步房主状态');
+    socket.value?.emit('request_sync', {
+      room_id: roomId.value,
+      user_id: currentUserId.value
+    });
+    
     isControllingPlayback = true;
     videoPlayer.value?.pause();
     setTimeout(() => { isControllingPlayback = false; }, 100);
@@ -386,6 +402,13 @@ const onPause = () => {
   if (isUpdating || isControllingPlayback) return;
   
   if (!canControl.value) {
+    // 没有控制权限时，立即同步房主的播放状态
+    console.log('成员尝试暂停，同步房主状态');
+    socket.value?.emit('request_sync', {
+      room_id: roomId.value,
+      user_id: currentUserId.value
+    });
+    
     const now = Date.now();
     if (now - lastWarningTime > 2000) {
       ElMessage.warning('只有房主可以控制播放');

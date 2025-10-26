@@ -134,12 +134,18 @@ async def join_room(sid, data):
 @sio.event
 async def leave_room_event(sid, data):
     """离开房间"""
+    db = None
     try:
         room_id = data.get('room_id')
         user_id = data.get('user_id')
         
         if not room_id or not user_id:
             return
+        
+        db = get_db()
+        
+        # 调用数据库函数更新成员状态
+        sync_room_crud.leave_room(db, room_id, user_id)
         
         # 离开 Socket.IO 房间
         await sio.leave_room(sid, f'room_{room_id}')
@@ -161,6 +167,9 @@ async def leave_room_event(sid, data):
         
     except Exception as e:
         logger.error(f"Error in leave_room_event: {str(e)}")
+    finally:
+        if db:
+            db.close()
 
 @sio.event
 async def playback_control(sid, data):
@@ -297,6 +306,48 @@ async def time_update(sid, data):
         
     except Exception as e:
         logger.error(f"Error in time_update: {str(e)}")
+    finally:
+        if db:
+            db.close()
+
+@sio.event
+async def request_sync(sid, data):
+    """处理成员请求同步事件"""
+    db = None
+    try:
+        room_id = data.get('room_id')
+        user_id = data.get('user_id')
+        
+        if not room_id or not user_id:
+            await sio.emit('error', {'message': '缺少必要参数'}, room=sid)
+            return
+        
+        db = get_db()
+        
+        # 验证房间存在
+        room = sync_room_crud.get_room_by_id(db, room_id)
+        if not room:
+            await sio.emit('error', {'message': '房间不存在'}, room=sid)
+            return
+        
+        # 验证用户是房间成员
+        if not sync_room_crud.is_room_member(db, room_id, user_id):
+            await sio.emit('error', {'message': '您不是该房间成员'}, room=sid)
+            return
+        
+        # 发送当前播放状态给请求者
+        await sio.emit('playback_sync', {
+            'action': 'sync',
+            'time': room.current_time,
+            'is_playing': room.is_playing,
+            'user_id': room.host_user_id  # 标记为房主状态同步
+        }, room=sid)
+        
+        logger.info(f"Sync requested for user {user_id} in room {room_id}")
+        
+    except Exception as e:
+        logger.error(f"Error in request_sync: {str(e)}")
+        await sio.emit('error', {'message': f'同步请求失败: {str(e)}'}, room=sid)
     finally:
         if db:
             db.close()

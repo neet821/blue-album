@@ -6,7 +6,14 @@ from sqlalchemy import func
 from . import models, schemas
 import random
 import string
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+def to_beijing_time(dt: datetime) -> datetime:
+    """将UTC时间转换为北京时间（东八区）"""
+    if dt.tzinfo is None:
+        # 如果时间没有时区信息，假设是UTC
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone(timedelta(hours=8)))
 
 def generate_room_code() -> str:
     """生成6位随机房间代码"""
@@ -231,7 +238,7 @@ def get_room_messages(db: Session, room_id: int, skip: int = 0, limit: int = 50)
             'user_id': msg.user_id,
             'username': msg.user.username,
             'message': msg.message,
-            'created_at': msg.created_at.isoformat() if msg.created_at else None  # 修复: 转换datetime为ISO字符串
+            'created_at': to_beijing_time(msg.created_at).isoformat() if msg.created_at else None
         })
     
     return list(reversed(result))  # 返回正序
@@ -269,7 +276,7 @@ def get_all_rooms_admin(db: Session, skip: int = 0, limit: int = 100):
             'total_members': total_members,
             'online_members': online_members,
             'is_playing': room.is_playing,
-            'created_at': room.created_at.isoformat() if room.created_at else None,
+            'created_at': to_beijing_time(room.created_at).isoformat() if room.created_at else None,
             'updated_at': room.updated_at.isoformat() if room.updated_at else None
         })
     

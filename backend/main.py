@@ -690,3 +690,16 @@ def admin_cleanup_empty_rooms(
 # 挂载 WebSocket 服务（必须在所有路由之后）
 # =====================================================
 app.mount("/ws", socket_app)
+
+# =====================================================
+# 启动后台任务
+# =====================================================
+import asyncio
+from . import background_tasks
+
+@app.on_event("startup")
+async def startup_event():
+    """应用启动时执行"""
+    # 启动空房间清理任务
+    asyncio.create_task(background_tasks.cleanup_task(interval_minutes=5, empty_timeout_minutes=10))
+    print("✅ 同步观影空房间清理任务已启动")

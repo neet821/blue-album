@@ -61,13 +61,16 @@
         </template>
       </el-table-column>
       
-      <el-table-column label="操作" width="180" fixed="right">
+      <el-table-column label="操作" width="220" fixed="right">
         <template #default="{ row }">
           <el-button link type="primary" size="small" @click="viewRoom(row)">
             查看
           </el-button>
           <el-button link type="warning" size="small" @click="editRoom(row)">
             编辑
+          </el-button>
+          <el-button link type="success" size="small" @click="stealthJoinRoom(row)">
+            隐身进入
           </el-button>
           <el-popconfirm
             title="确定删除此房间吗？"
@@ -170,9 +173,12 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Refresh, Delete } from '@element-plus/icons-vue'
 import axios from 'axios'
+
+const router = useRouter()
 
 const rooms = ref([])
 const loading = ref(false)
@@ -270,9 +276,18 @@ const editRoom = (room) => {
   editDialogVisible.value = true
 }
 
+const stealthJoinRoom = (room) => {
+  // 设置隐身模式
+  sessionStorage.setItem('adminStealthMode', 'true')
+  sessionStorage.setItem('stealthRoomId', room.id)
+  
+  // 跳转到房间页面
+  router.push(`/tools/sync-room/${room.id}`)
+}
+
 const saveRoom = async () => {
   try {
-    const token = localStorage.getItem('token')
+    const token = sessionStorage.getItem('token')
     await axios.put(`/api/admin/sync-rooms/${editingRoomId.value}`, editForm.value, {
       headers: { Authorization: `Bearer ${token}` }
     })

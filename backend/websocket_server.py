@@ -69,6 +69,7 @@ async def join_room(sid, data):
         room_id = data.get('room_id')
         user_id = data.get('user_id')
         username = data.get('username', 'Anonymous')
+        stealth = data.get('stealth', False)  # 检查是否为隐身模式
         
         if not room_id or not user_id:
             await sio.emit('error', {'message': '缺少必要参数'}, room=sid)
@@ -82,18 +83,23 @@ async def join_room(sid, data):
             await sio.emit('error', {'message': '房间不存在'}, room=sid)
             return
         
-        # 验证用户是房间成员
-        if not sync_room_crud.is_room_member(db, room_id, user_id):
+        # 验证用户是房间成员（隐身模式管理员除外）
+        from .crud import get_user_by_id
+        user = get_user_by_id(db, user_id)
+        is_admin_stealth = stealth and user and user.role == 'admin'
+        
+        if not is_admin_stealth and not sync_room_crud.is_room_member(db, room_id, user_id):
             await sio.emit('error', {'message': '您不是该房间成员'}, room=sid)
             return
         
         # 加入 Socket.IO 房间
         await sio.enter_room(sid, f'room_{room_id}')
         
-        # 记录连接
-        if room_id not in room_connections:
-            room_connections[room_id] = {}
-        room_connections[room_id][user_id] = sid
+        # 记录连接（隐身模式管理员不记录为正式成员）
+        if not is_admin_stealth:
+            if room_id not in room_connections:
+                room_connections[room_id] = {}
+            room_connections[room_id][user_id] = sid
         
         # 获取房间成员列表
         members = sync_room_crud.get_room_members(db, room_id)
@@ -115,14 +121,15 @@ async def join_room(sid, data):
             'members': members
         }, room=sid)
         
-        # 通知房间其他成员有新成员加入
-        await sio.emit('member_joined', {
-            'user_id': user_id,
-            'username': username,
-            'room_id': room_id
-        }, room=f'room_{room_id}', skip_sid=sid)
+        # 如果不是隐身模式，通知房间其他成员有新成员加入
+        if not stealth:
+            await sio.emit('member_joined', {
+                'user_id': user_id,
+                'username': username,
+                'room_id': room_id
+            }, room=f'room_{room_id}', skip_sid=sid)
         
-        logger.info(f"User {user_id} joined room {room_id}")
+        logger.info(f"User {user_id} joined room {room_id}" + (" (stealth)" if stealth else ""))
         
     except Exception as e:
         logger.error(f"Error in join_room: {str(e)}")
@@ -151,17 +158,19 @@ async def leave_room_event(sid, data):
         await sio.leave_room(sid, f'room_{room_id}')
         
         # 移除连接记录
-        if room_id in room_connections and user_id in room_connections[room_id]:
+        was_connected = room_id in room_connections and user_id in room_connections[room_id]
+        if was_connected:
             del room_connections[room_id][user_id]
             
             if not room_connections[room_id]:
                 del room_connections[room_id]
         
-        # 通知其他成员
-        await sio.emit('member_left', {
-            'user_id': user_id,
-            'room_id': room_id
-        }, room=f'room_{room_id}')
+        # 如果是正式成员，通知其他成员（隐身模式管理员不通知）
+        if was_connected:
+            await sio.emit('member_left', {
+                'user_id': user_id,
+                'room_id': room_id
+            }, room=f'room_{room_id}')
         
         logger.info(f"User {user_id} left room {room_id}")
         

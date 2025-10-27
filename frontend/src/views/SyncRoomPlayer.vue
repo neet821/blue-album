@@ -7,6 +7,10 @@
           <div class="room-info">
             <h2>{{ roomInfo.room_name }}</h2>
             <span class="room-code">房间代码: {{ roomInfo.room_code }}</span>
+            <!-- 隐身模式提示 -->
+            <div v-if="isStealthMode" class="stealth-indicator">
+              <el-tag type="warning" size="small">👁️ 管理员隐身模式</el-tag>
+            </div>
           </div>
           <div class="room-controls">
             <el-button size="small" @click="copyRoomCode">📋 复制代码</el-button>
@@ -169,6 +173,10 @@ const roomId = ref(parseInt(route.params.id));
 const currentUserId = computed(() => authStore.user?.id);
 const currentUsername = computed(() => authStore.user?.username);
 
+// 检查是否为管理员隐身模式
+const isStealthMode = ref(sessionStorage.getItem('adminStealthMode') === 'true');
+const stealthRoomId = ref(sessionStorage.getItem('stealthRoomId'));
+
 const videoPlayer = ref(null);
 const chatContainer = ref(null);
 const localFileInput = ref(null);
@@ -213,8 +221,15 @@ let timeUpdateTimer = null;
 // 获取房间信息
 const fetchRoomInfo = async () => {
   try {
-    const response = await request.get(`/sync-rooms/${roomId.value}`);
+    // 隐身模式的管理员使用管理员API
+    const apiEndpoint = isStealthMode.value ? `/admin/sync-rooms/${roomId.value}` : `/sync-rooms/${roomId.value}`;
+    const response = await request.get(apiEndpoint);
     roomInfo.value = response.data;
+    
+    // 如果是隐身模式，从房间详情中提取成员信息
+    if (isStealthMode.value && response.data.members) {
+      members.value = response.data.members;
+    }
     
     // 设置视频源（仅link模式）
     if (videoPlayer.value && roomInfo.value.mode === 'link' && roomInfo.value.video_source) {
@@ -229,8 +244,14 @@ const fetchRoomInfo = async () => {
 // 获取成员列表
 const fetchMembers = async () => {
   try {
-    const response = await request.get(`/sync-rooms/${roomId.value}/members`);
-    members.value = response.data;
+    if (isStealthMode.value) {
+      // 隐身模式下，成员信息已经从房间详情中获取
+      // 这里不需要额外调用
+      return;
+    } else {
+      const response = await request.get(`/sync-rooms/${roomId.value}/members`);
+      members.value = response.data;
+    }
   } catch (error) {
     console.error('获取成员列表失败', error);
   }
@@ -239,7 +260,9 @@ const fetchMembers = async () => {
 // 获取聊天记录
 const fetchMessages = async () => {
   try {
-    const response = await request.get(`/sync-rooms/${roomId.value}/messages`);
+    // 隐身模式的管理员使用管理员API
+    const apiEndpoint = isStealthMode.value ? `/admin/sync-rooms/${roomId.value}/messages` : `/sync-rooms/${roomId.value}/messages`;
+    const response = await request.get(apiEndpoint);
     messages.value = response.data;
     scrollToBottom();
   } catch (error) {
@@ -297,7 +320,8 @@ const initWebSocket = () => {
     socket.value.emit('join_room', {
       room_id: roomId.value,
       user_id: currentUserId.value,
-      username: currentUsername.value
+      username: currentUsername.value,
+      stealth: isStealthMode.value  // 添加隐身模式参数
     });
   });
 
@@ -643,6 +667,12 @@ onBeforeUnmount(() => {
   if (timeUpdateTimer) {
     clearTimeout(timeUpdateTimer);
   }
+  
+  // 清理隐身模式状态
+  if (isStealthMode.value) {
+    sessionStorage.removeItem('adminStealthMode');
+    sessionStorage.removeItem('stealthRoomId');
+  }
 });
 </script>
 
@@ -687,6 +717,10 @@ onBeforeUnmount(() => {
 .room-code {
   color: #666;
   font-size: 14px;
+}
+
+.stealth-indicator {
+  margin-top: 8px;
 }
 
 .video-container {

@@ -672,6 +672,25 @@ def admin_delete_room(
     
     return {"message": "Room deleted successfully"}
 
+@app.get("/api/admin/sync-rooms/{room_id}/messages", response_model=List[schemas.SyncRoomMessage])
+def admin_get_room_messages(
+    room_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    skip: int = 0,
+    limit: int = 50
+):
+    """管理员获取房间聊天记录"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    room = sync_room_crud.get_room_by_id(db, room_id)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    messages = sync_room_crud.get_room_messages(db, room_id, skip=skip, limit=limit)
+    return messages
+
 @app.post("/api/admin/sync-rooms/cleanup")
 def admin_cleanup_empty_rooms(
     current_user: models.User = Depends(get_current_user),

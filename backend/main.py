@@ -496,19 +496,19 @@ def close_sync_room(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """关闭房间(仅房主)"""
+    """关闭房间(仅房主，且房间必须为空)"""
     room = sync_room_crud.get_room_by_id(db, room_id)
     if not room:
-        raise HTTPException(status_code=404, detail="Room not found")
+        raise HTTPException(status_code=404, detail="房间不存在")
     
     if room.host_user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Only host can close the room")
+        raise HTTPException(status_code=403, detail="只有房主可以关闭房间")
     
-    success = sync_room_crud.close_room(db, room_id)
+    success, message = sync_room_crud.close_room(db, room_id)
     if not success:
-        raise HTTPException(status_code=500, detail="Failed to close room")
+        raise HTTPException(status_code=400, detail=message)
     
-    return {"message": "Room closed successfully"}
+    return {"message": message}
 
 @app.get("/api/sync-rooms/{room_id}/members", response_model=List[schemas.SyncRoomMemberInfo])
 def get_room_members(

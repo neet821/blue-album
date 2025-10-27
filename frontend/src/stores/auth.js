@@ -1,16 +1,10 @@
 import { defineStore } from 'pinia';
 import apiClient, { API_ENDPOINTS } from '../utils/api.js';
 
-// 根据端口生成唯一的存储key，避免多实例串账户
-const getStorageKey = (key) => {
-  const port = window.location.port || '80';
-  return `${key}_${port}`;
-};
-
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-  token: localStorage.getItem(getStorageKey('token')) || null,
-  user: JSON.parse(localStorage.getItem(getStorageKey('user')) || 'null'),
+    token: localStorage.getItem('token') || null,
+    user: JSON.parse(localStorage.getItem('user') || 'null'),
   }),
 
   getters: {
@@ -77,8 +71,8 @@ export const useAuthStore = defineStore('auth', {
         const { access_token } = response.data;
 
         // 保存 token
-  this.token = access_token;
-  localStorage.setItem(getStorageKey('token'), access_token);
+        this.token = access_token;
+        localStorage.setItem('token', access_token);
 
         // 获取用户信息
         await this.fetchUserInfo();
@@ -97,8 +91,8 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await apiClient.get(API_ENDPOINTS.USER_INFO);
 
-  this.user = response.data;
-  localStorage.setItem(getStorageKey('user'), JSON.stringify(response.data));
+        this.user = response.data;
+        localStorage.setItem('user', JSON.stringify(response.data));
       } catch (error) {
         console.error('获取用户信息失败:', error);
         this.logout();
@@ -108,8 +102,8 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.token = null;
       this.user = null;
-  localStorage.removeItem(getStorageKey('token'));
-  localStorage.removeItem(getStorageKey('user'));
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     },
 
     // 初始化时检查 token 有效性

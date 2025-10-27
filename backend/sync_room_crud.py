@@ -103,15 +103,20 @@ def update_room(db: Session, room_id: int, room_update: schemas.SyncRoomUpdate) 
     db.refresh(db_room)
     return db_room
 
-def close_room(db: Session, room_id: int) -> bool:
+def close_room(db: Session, room_id: int) -> tuple[bool, str]:
     """关闭房间"""
     db_room = get_room_by_id(db, room_id)
     if not db_room:
-        return False
+        return False, "房间不存在"
+    
+    # 检查房间是否为空（没有在线成员）
+    online_members = get_room_members(db, room_id, online_only=True)
+    if online_members:
+        return False, f"房间还有 {len(online_members)} 个在线成员，无法删除"
     
     db_room.is_active = False
     db.commit()
-    return True
+    return True, "房间已关闭"
 
 # 房间成员管理
 def join_room(db: Session, room_id: int, user_id: int, nickname: str = None) -> models.SyncRoomMember:

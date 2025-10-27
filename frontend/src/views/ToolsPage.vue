@@ -73,35 +73,13 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { ref, computed, onMounted } from 'vue';
+import { useAuthStore } from '../stores/auth';
 
 const router = useRouter();
-const isAdmin = ref(false);
+const authStore = useAuthStore();
 
-// 检查用户是否为管理员
-const checkAdminStatus = async () => {
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      isAdmin.value = false;
-      return;
-    }
-
-    const response = await axios.get('/api/users/me', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    
-    isAdmin.value = response.data.role === 'admin';
-  } catch (error) {
-    console.error('检查管理员状态失败:', error);
-    isAdmin.value = false;
-  }
-};
-
-onMounted(() => {
-  checkAdminStatus();
-});
+const isAdmin = computed(() => authStore.isAdmin);
 
 const navigateTo = (path) => {
   router.push(path);

@@ -3,13 +3,14 @@ import apiClient, { API_ENDPOINTS } from '../utils/api.js';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    token: localStorage.getItem('token') || null,
-    user: JSON.parse(localStorage.getItem('user') || 'null'),
+    token: sessionStorage.getItem('token') || null,
+    user: JSON.parse(sessionStorage.getItem('user') || 'null'),
   }),
 
   getters: {
     isAuthenticated: (state) => !!state.token,
     currentUser: (state) => state.user,
+    isAdmin: (state) => state.user?.role === 'admin',
   },
 
   actions: {
@@ -72,7 +73,7 @@ export const useAuthStore = defineStore('auth', {
 
         // 保存 token
         this.token = access_token;
-        localStorage.setItem('token', access_token);
+        sessionStorage.setItem('token', access_token);
 
         // 获取用户信息
         await this.fetchUserInfo();
@@ -92,7 +93,7 @@ export const useAuthStore = defineStore('auth', {
         const response = await apiClient.get(API_ENDPOINTS.USER_INFO);
 
         this.user = response.data;
-        localStorage.setItem('user', JSON.stringify(response.data));
+        sessionStorage.setItem('user', JSON.stringify(response.data));
       } catch (error) {
         console.error('获取用户信息失败:', error);
         this.logout();
@@ -102,8 +103,8 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.token = null;
       this.user = null;
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
     },
 
     // 初始化时检查 token 有效性

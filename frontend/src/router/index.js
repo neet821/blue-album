@@ -97,12 +97,14 @@ const router = createRouter({
 
 // 路由守卫 - 检查认证状态
 router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
 
   console.log('🛡️ 路由守卫检查:', {
     to: to.path,
     requiresAuth,
+    requiresAdmin,
     hasToken: !!token
   });
 
@@ -113,6 +115,18 @@ router.beforeEach((to, from, next) => {
       path: '/login',
       query: { message: '请先登录' }
     });
+  } else if (requiresAdmin) {
+    // 需要管理员权限，检查用户角色
+    const user = JSON.parse(sessionStorage.getItem('user') || 'null');
+    if (!user || user.role !== 'admin') {
+      console.log('⚠️ 需要管理员权限但用户不是管理员');
+      next({
+        path: '/',
+        query: { message: '需要管理员权限' }
+      });
+    } else {
+      next();
+    }
   } else {
     next();
   }

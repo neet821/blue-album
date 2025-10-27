@@ -72,7 +72,7 @@ const apiClient = axios.create({
 // 请求拦截器 - 添加认证token
 apiClient.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -91,8 +91,8 @@ apiClient.interceptors.response.use(
     (error) => {
         // 401错误自动登出
         if (error.response?.status === 401) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('user');
             // 可以在这里触发路由跳转到登录页
             if (window.location.pathname !== '/login') {
                 window.location.href = '/login';

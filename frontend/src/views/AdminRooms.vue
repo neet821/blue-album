@@ -218,7 +218,7 @@ const formatDate = (dateStr) => {
 const refreshRooms = async () => {
   loading.value = true
   try {
-    const token = localStorage.getItem('token')
+    const token = sessionStorage.getItem('token')
     const response = await axios.get('/api/admin/sync-rooms', {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -234,7 +234,7 @@ const refreshRooms = async () => {
 
 const deleteRoom = async (roomId) => {
   try {
-    const token = localStorage.getItem('token')
+    const token = sessionStorage.getItem('token')
     await axios.delete(`/api/admin/sync-rooms/${roomId}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -248,7 +248,7 @@ const deleteRoom = async (roomId) => {
 
 const viewRoom = async (room) => {
   try {
-    const token = localStorage.getItem('token')
+    const token = sessionStorage.getItem('token')
     const response = await axios.get(`/api/admin/sync-rooms/${room.id}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -288,7 +288,7 @@ const saveRoom = async () => {
 const cleanupEmptyRooms = async () => {
   loading.value = true
   try {
-    const token = localStorage.getItem('token')
+    const token = sessionStorage.getItem('token')
     const response = await axios.post('/api/admin/sync-rooms/cleanup', {}, {
       headers: { Authorization: `Bearer ${token}` }
     })
